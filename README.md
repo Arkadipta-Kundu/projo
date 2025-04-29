@@ -2,7 +2,7 @@ Here’s a cleaner, more professional, and well-structured rewrite of your READM
 
 ---
 
-# 🗂️ Projo — Solo Project Manager
+# ![Projo Icon](assets/images/favicon.ico) Projo — Solo Project Manager
 
 **Projo** is a lightweight, self-hosted project management tool built for individuals and small teams. It helps you manage projects, tasks, notes, and issues efficiently with a clean UI and essential productivity features — including a visual Kanban board and data export options.
 
