@@ -152,6 +152,3 @@ This project is open-source and free to use under the [MIT License](LICENSE).
 For questions or feedback, reach out:  
 **Arkadipta Kundu** — [arkadipta.dev@gmail.com](mailto:arkadipta.dev@gmail.com)
 
----
-
-Would you like this added directly to your project folder as `README.md`?
