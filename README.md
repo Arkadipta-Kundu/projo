@@ -1,181 +1,147 @@
-# Projo
-
-## Overview
-
-The **Projo** is a lightweight project management tool designed for individuals or small teams. It allows you to manage projects, tasks, notes, and issues efficiently. It also includes a Kanban board for task organization and data export functionality for backups or external analysis.
+Here’s a cleaner, more professional, and well-structured rewrite of your README for **Projo**:
 
 ---
 
-## Features
+# 🗂️ Projo — Solo Project Manager
 
-- **User Authentication**: Secure login/logout system to protect your data.
-- **Project Management**: Create, update, and delete projects.
-- **Task Management**: Manage tasks with priorities, statuses, and project assignments.
-- **Kanban Board**: Visualize tasks in a drag-and-drop interface.
-- **Notes Section**: Jot down quick notes and optionally tag them to projects.
-- **Issue Tracker**: Log and track issues with severity and status, and convert issues to tasks.
-- **Data Export**: Export projects, tasks, notes, and issues in CSV or JSON formats.
+**Projo** is a lightweight, self-hosted project management tool built for individuals and small teams. It helps you manage projects, tasks, notes, and issues efficiently with a clean UI and essential productivity features — including a visual Kanban board and data export options.
 
 ---
 
-## Installation Guide
+## 🚀 Features
 
-### Prerequisites
-
-1. **Web Server**: Install [XAMPP](https://www.apachefriends.org/) or any PHP-compatible web server.
-2. **Database**: MySQL or MariaDB.
-3. **Browser**: A modern web browser (e.g., Chrome, Firefox).
-
-### Steps
-
-1. **Clone or Download the Repository**:
-
-   - Place the project folder (`projo`) in your web server's root directory (e.g., `c:/xampp/htdocs/`).
-
-2. **Set Up the Database**:
-
-   - Import the `projo.sql` file into your MySQL database. This file contains the required tables (`users`, `projects`, `tasks`, `notes`, `issues`).
-   - Example tables:
-     - `users`: Stores user credentials.
-     - `projects`: Stores project details.
-     - `tasks`: Stores task details.
-     - `notes`: Stores notes.
-     - `issues`: Stores issues.
-
-3. **Configure Database Connection**:
-
-   - Open `includes/db.php` and update the database credentials:
-     ```php
-     $host = 'localhost';
-     $dbname = 'projo';
-     $username = 'root';
-     $password = '';
-     ```
-
-4. **Start the Server**:
-
-   - Start your web server (e.g., XAMPP) and navigate to `http://localhost/projo/`.
-
-5. **Login**:
-   - Default admin credentials:
-     - **Username**: `admin`
-     - **Password**: `password123`
+- 🔐 **User Authentication** — Secure login/logout system to protect access.
+- 📁 **Project Management** — Create, update, delete, and track projects.
+- ✅ **Task Management** — Organize tasks with priorities, statuses, and project assignments.
+- 📊 **Kanban Board** — Drag-and-drop tasks across “To Do”, “In Progress”, and “Done”.
+- 📝 **Notes** — Add quick notes and optionally tag them to specific projects.
+- 🐞 **Issue Tracking** — Log issues with severity/status and convert them to actionable tasks.
+- 📤 **Data Export** — Export data as CSV or JSON for backup or integration.
 
 ---
 
-## Usage Guide
+## ⚙️ Installation
 
-### **1. Login**
+### Requirements
 
-- Navigate to `http://localhost/projo/login.php`.
-- Enter your username and password to access the dashboard.
+- PHP-compatible web server (e.g. [XAMPP](https://www.apachefriends.org/))
+- MySQL or MariaDB
+- Modern web browser (Chrome, Firefox, etc.)
 
-### **2. Dashboard**
+### Setup Steps
 
-- The dashboard provides an overview of:
-  - Total projects
-  - Total tasks
-  - Pending tasks
-  - Upcoming tasks (due today or tomorrow)
-- You can also export data (projects, tasks, notes, issues) in CSV or JSON formats.
+1. **Download/Clone the Repository**  
+   Place the `projo` folder inside your web server’s root directory (e.g. `C:/xampp/htdocs/`).
 
-### **3. Projects**
+2. **Import the Database**  
+   - Open phpMyAdmin or use the MySQL CLI.  
+   - Import the included `projo.sql` file. It creates the following tables:  
+     - `users`, `projects`, `tasks`, `notes`, `issues`
 
-- Navigate to `Projects` from the navigation bar.
-- **Add a Project**:
-  - Fill in the project title, description, and deadline.
-- **Edit/Delete a Project**:
-  - Use the "Edit" or "Delete" buttons next to a project.
+3. **Configure Database Credentials**  
+   Open `includes/db.php` and update your connection settings:
 
-### **4. Tasks**
+   ```php
+   $host = 'localhost';
+   $dbname = 'projo';
+   $username = 'root';
+   $password = '';
+   ```
 
-- Navigate to `Tasks` from the navigation bar.
-- **Add a Task**:
-  - Fill in the task title, description, due date, priority, status, and assign it to a project.
-- **Edit/Delete a Task**:
-  - Use the "Edit" or "Delete" buttons next to a task.
+4. **Start Your Server**  
+   Launch your web server and visit:  
+   `http://localhost/projo/`
 
-### **5. Kanban Board**
-
-- Navigate to `Kanban` from the navigation bar.
-- **Drag and Drop**:
-  - Move tasks between columns (`To Do`, `In Progress`, `Done`).
-- **Update Task Status**:
-  - Dragging a task to a new column automatically updates its status.
-
-### **6. Notes**
-
-- Navigate to `Notes` from the navigation bar.
-- **Add a Note**:
-  - Write a note and optionally tag it to a project.
-- **Edit/Delete a Note**:
-  - Use the "Edit" or "Delete" buttons next to a note.
-
-### **7. Issues**
-
-- Navigate to `Issues` from the navigation bar.
-- **Add an Issue**:
-  - Fill in the issue title, description, severity, status, and optionally assign it to a project.
-- **Convert to Task**:
-  - Use the "Convert to Task" button to create a task from an issue.
-- **Edit/Delete an Issue**:
-  - Use the "Edit" or "Delete" buttons next to an issue.
-
-### **8. Data Export**
-
-- Navigate to the `Export Data` section on the dashboard.
-- Select:
-  - **What to Export**: Projects, Tasks, Notes, or Issues.
-  - **Export Format**: CSV or JSON.
-- Click the **Export** button to download the file.
-
-### **9. Logout**
-
-- Click the **Logout** link in the navigation bar to log out of the system.
+5. **Login**  
+   Use the default credentials:  
+   - **Username**: `admin`  
+   - **Password**: `password123`
 
 ---
 
-## Security Notes
+## 🧭 How to Use
 
-- **Authentication**: Only authenticated users can access the system.
-- **Password Storage**: User passwords are hashed using `password_hash()` for security.
-- **Session Management**: Sessions are used to maintain user authentication.
+### 1. Login  
+Navigate to `login.php`, enter your credentials, and you’ll be redirected to the dashboard.
+
+### 2. Dashboard  
+- View project/task counts and pending items  
+- See upcoming deadlines  
+- Export data directly from the dashboard
+
+### 3. Projects  
+- Add a new project (title, description, deadline)  
+- Edit or delete projects via the action buttons
+
+### 4. Tasks  
+- Create tasks with due dates, priorities, and statuses  
+- Assign tasks to projects  
+- Mark tasks complete using checkboxes  
+- Edit/delete tasks anytime
+
+### 5. Kanban Board  
+- Drag-and-drop tasks between columns  
+- Automatically updates task statuses visually
+
+### 6. Notes  
+- Add simple notes for ideas or planning  
+- Optionally tag notes to projects  
+- Edit and delete notes
+
+### 7. Issues  
+- Log bugs or problems with severity levels (Low, Medium, High)  
+- Assign issues to projects if needed  
+- Convert issues to tasks in one click  
+- Full edit/delete support
+
+### 8. Export Data  
+- Export projects, tasks, notes, or issues  
+- Select CSV or JSON format  
+- Use the “Export” section on the dashboard
+
+### 9. Logout  
+- Use the Logout button in the navigation to securely end your session
 
 ---
 
-## Troubleshooting
+## 🔐 Security Highlights
 
-1. **Database Connection Error**:
-
-   - Ensure the database credentials in `includes/db.php` are correct.
-   - Verify that the MySQL server is running.
-
-2. **Login Issues**:
-
-   - Ensure the `users` table exists and contains valid credentials.
-   - Use the default admin credentials if no users are present.
-
-3. **Export Issues**:
-   - Ensure the `export.php` file is accessible and properly configured.
+- Passwords stored securely with `password_hash()`  
+- Authenticated session-based access  
+- Simple access control per login session
 
 ---
 
-## Future Enhancements
+## 🛠️ Troubleshooting
 
-- Add user roles (e.g., admin, editor).
-- Implement email notifications for tasks and issues.
-- Add file attachments for tasks and issues.
-
----
-
-## License
-
-This project is open-source and free to use.
+| Issue                        | Solution                                                                 |
+|-----------------------------|--------------------------------------------------------------------------|
+| Database connection error    | Check your `db.php` credentials and ensure MySQL is running             |
+| Login not working            | Verify the `users` table exists and try default credentials             |
+| Export not downloading       | Ensure `export.php` is correctly implemented and accessible             |
 
 ---
 
-## Contact
+## 🛣️ Roadmap / Future Ideas
 
-For support or feedback, please contact the developer at [arkadipta.dev@gmail.com].
-# projo
-# projo
+- User roles and permissions (admin, editor, viewer)  
+- Email notifications for task deadlines or issue updates  
+- File attachments for tasks or issues  
+- Calendar view for tasks  
+
+---
+
+## 📄 License
+
+This project is open-source and free to use under the [MIT License](LICENSE).
+
+---
+
+## 📬 Contact
+
+For questions or feedback, reach out:  
+**Arkadipta Kundu** — [arkadipta.dev@gmail.com](mailto:arkadipta.dev@gmail.com)
+
+---
+
+Would you like this added directly to your project folder as `README.md`?
