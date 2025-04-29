@@ -1,0 +1,185 @@
+/* Layout Enhancements */
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Header & Navigation */
+header,
+.navbar {
+  background: #ffffff; /* Change background to white */
+  color: #1f2937; /* Dark text for contrast */
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb; /* Subtle border for separation */
+}
+
+.navbar a {
+  color: #374151; /* Dark gray for links */
+  margin: 0 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.navbar a:hover {
+  color: #2563eb; /* Blue hover effect */
+}
+
+/* Search Bar in Header */
+header form input[type="text"] {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  color: #374151;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+header form input[type="text"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+  outline: none;
+}
+
+/* Search Button */
+header form button {
+  padding: 0.5rem;
+  background-color: #2563eb; /* Blue background */
+  color: white; /* White icon color */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem; /* Adjust icon size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease-in-out;
+  width: 2.5rem; /* Square button */
+  height: 2.5rem; /* Square button */
+}
+
+header form button:hover {
+  background-color: #1d4ed8; /* Darker blue on hover */
+}
+
+header form button i {
+  font-size: 1.2rem; /* Adjust icon size */
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.btn:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Centered Actions */
+.action-buttons {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+th,
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+th {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Status Badges */
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status.pending {
+  background-color: #fcd34d;
+  color: #92400e;
+}
+
+.status.completed {
+  background-color: #34d399;
+  color: #065f46;
+}
+
+.status.in-progress {
+  background-color: #60a5fa;
+  color: #1e3a8a;
+}
+
+/* Forms */
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Cards (Optional Modules) */
+.card {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Footer */
+footer {
+  margin-top: 4rem;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
