@@ -54,6 +54,7 @@ $projects = getAllProjects($pdo);
 <head>
     <meta charset="UTF-8">
     <title>Tasks</title>
+    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/projo/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

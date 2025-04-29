@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/projo/assets/css/style.css">
 </head>
