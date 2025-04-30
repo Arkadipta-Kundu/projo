@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->exec("INSERT INTO users (username, password) VALUES ('admin', '" . password_hash('password123', PASSWORD_DEFAULT) . "');");
 
             $message = 'All tables have been reset successfully!';
-            logActivity($pdo, $_SESSION['user'], 'Rest Tables');
+            logActivity($pdo, $_SESSION['user'], 'Reset Database');
         } catch (Exception $e) {
             $message = 'Error resetting tables: ' . $e->getMessage();
         }
@@ -108,16 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $header = fgetcsv($handle);
                             while (($row = fgetcsv($handle)) !== false) {
                                 $data = array_combine($header, $row);
+                                // Remove invalid columns
+                                unset($data['project_title']);
                                 $columns = implode(',', array_keys($data));
                                 $placeholders = ':' . implode(',:', array_keys($data));
-                                $stmt = $pdo->prepare("INSERT INTO $tableName ($columns) VALUES ($placeholders)");
+                                $stmt = $pdo->prepare("INSERT INTO notes ($columns) VALUES ($placeholders)");
                                 $stmt->execute($data);
                             }
                             fclose($handle);
                             $message = 'Data imported successfully!';
-                            logActivity($pdo, $_SESSION['user'], 'Imported data');
-                        } else {
-                            $message = 'Error reading CSV file.';
                         }
                     } else {
                         $message = 'Unsupported file type.';
