@@ -127,6 +127,8 @@ This project is open-source under the [MIT License](LICENSE).
 ## ❗Disclaimer
 This project is on continuous developmentif you want latest features then just simply clone the project from the Github download as zip (recomended) , rather than downloading the zip file from the release. The zip form the release is more stable and well tested .
 
+---
+
 ## 📬 Contact
 
 Developed by **Arkadipta Kundu**  
