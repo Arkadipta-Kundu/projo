@@ -117,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                             fclose($handle);
                             $message = 'Data imported successfully!';
+                            logActivity($pdo, $_SESSION['user'], 'Imported data');
                         }
                     } else {
                         $message = 'Unsupported file type.';
