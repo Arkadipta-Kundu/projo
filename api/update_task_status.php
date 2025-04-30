@@ -11,6 +11,11 @@ if (isset($data['id'], $data['status'])) {
     $status = $data['status'];
 
     try {
+        // Normalize status to match database values
+        if ($status === 'todo') {
+            $status = 'To Do';
+        }
+
         toggleTaskStatus($pdo, $id, $status);
         echo json_encode(['success' => true]);
     } catch (Exception $e) {

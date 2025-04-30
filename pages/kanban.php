@@ -11,15 +11,15 @@ $tasks = getAllTasks($pdo);
 
 <head>
     <meta charset="UTF-8">
-    <title>kanban</title>
+    <title>Kanban</title>
     <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
-    <!-- Include the script in the head or before the closing body tag -->
-    <script src="/projo/assets/js/script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -30,7 +30,7 @@ $tasks = getAllTasks($pdo);
             <!-- To Do Column -->
             <div class="bg-gray-200 p-4 rounded shadow">
                 <h3 class="text-xl font-bold mb-2">To Do</h3>
-                <div id="todo" class="kanban-column">
+                <div id="todo" class="kanban-column"> <!-- Correct ID for "To Do" -->
                     <?php foreach ($tasks as $task): ?>
                         <?php if ($task['status'] === 'To Do'): ?>
                             <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
@@ -45,7 +45,7 @@ $tasks = getAllTasks($pdo);
             <!-- In Progress Column -->
             <div class="bg-gray-200 p-4 rounded shadow">
                 <h3 class="text-xl font-bold mb-2">In Progress</h3>
-                <div id="in-progress" class="kanban-column">
+                <div id="in-progress" class="kanban-column"> <!-- Correct ID for "In Progress" -->
                     <?php foreach ($tasks as $task): ?>
                         <?php if ($task['status'] === 'In Progress'): ?>
                             <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
@@ -60,7 +60,7 @@ $tasks = getAllTasks($pdo);
             <!-- Done Column -->
             <div class="bg-gray-200 p-4 rounded shadow">
                 <h3 class="text-xl font-bold mb-2">Done</h3>
-                <div id="done" class="kanban-column">
+                <div id="done" class="kanban-column"> <!-- Correct ID for "Done" -->
                     <?php foreach ($tasks as $task): ?>
                         <?php if ($task['status'] === 'Done'): ?>
                             <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
@@ -74,31 +74,46 @@ $tasks = getAllTasks($pdo);
         </div>
     </main>
     <script>
-        // Initialize SortableJS for each column
-        ['todo', 'in-progress', 'done'].forEach(columnId => {
-            new Sortable(document.getElementById(columnId), {
-                group: 'kanban',
-                animation: 150,
-                dragClass: 'sortable-drag', // Add a class for the dragged element
-                ghostClass: 'sortable-ghost', // Add a class for the ghost element
-                onStart: function(evt) {
-                    evt.item.style.opacity = '0.5'; // Add visual feedback for dragging
-                },
-                onEnd: function(evt) {
-                    evt.item.style.opacity = '1'; // Reset opacity after dragging
-                    const taskId = evt.item.dataset.id;
-                    const newStatus = evt.to.id.replace('-', ' '); // Convert "in-progress" to "In Progress"
-                    updateTaskStatus(taskId, newStatus);
+        // Initialize Dragula for drag-and-drop functionality
+        const drake = dragula([document.getElementById('todo'), document.getElementById('in-progress'), document.getElementById('done')], {
+            accepts: (el, target, source, sibling) => {
+                // Allow dropping into any column, including empty ones
+                return true;
+            }
+        });
+
+        // Add a placeholder to empty containers
+        drake.on('drag', () => {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                if (column.children.length === 0) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'kanban-placeholder bg-gray-300 p-2 rounded text-center text-gray-500';
+                    placeholder.textContent = 'Drop here';
+                    column.appendChild(placeholder);
                 }
             });
         });
 
-        // Function to update task status via AJAX
-        function updateTaskStatus(taskId, newStatus) {
-            const spinner = document.createElement('div');
-            spinner.className = 'spinner';
-            document.body.appendChild(spinner);
+        drake.on('drop', (el, target, source, sibling) => {
+            // Remove placeholder after drop
+            document.querySelectorAll('.kanban-placeholder').forEach(placeholder => placeholder.remove());
 
+            // Ensure the task is dropped into a valid column
+            if (!target || !target.classList.contains('kanban-column')) {
+                alert('Invalid drop target. Reverting...');
+                source.appendChild(el); // Move the task back to its original column
+                return;
+            }
+
+            const taskId = el.dataset.id;
+            let newStatus = target.id.replace('-', ' '); // Convert "in-progress" to "In Progress"
+
+            // Ensure proper capitalization for "To Do"
+            if (newStatus === 'todo') {
+                newStatus = 'To Do';
+            }
+
+            // Send AJAX request to update task status
             fetch('/projo/api/update_task_status.php', {
                     method: 'POST',
                     headers: {
@@ -111,18 +126,25 @@ $tasks = getAllTasks($pdo);
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.body.removeChild(spinner);
                     if (!data.success) {
                         alert('Failed to update task status. Reverting...');
-                        location.reload();
+                        source.appendChild(el); // Move the task back to its original column
+                    } else {
+                        // Update the task's status visually
+                        el.dataset.status = newStatus;
                     }
                 })
                 .catch(error => {
-                    document.body.removeChild(spinner);
-                    alert('An error occurred. Reverting...');
-                    location.reload();
+                    alert('An error occurred while updating the task status. Reverting...');
+                    console.error('Error:', error);
+                    source.appendChild(el); // Move the task back to its original column
                 });
-        }
+        });
+
+        drake.on('cancel', () => {
+            // Remove placeholder if drag is canceled
+            document.querySelectorAll('.kanban-placeholder').forEach(placeholder => placeholder.remove());
+        });
     </script>
 </body>
 
