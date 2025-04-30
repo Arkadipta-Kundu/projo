@@ -14,7 +14,6 @@
             <a href="/projo/pages/notes.php">Notes</a>
             <a href="/projo/pages/issues.php">Issues</a>
             <a href="/projo/pages/settings.php">Settings</a>
-            <a href="/projo/logout.php" onclick="return confirm('Are you sure you want to log out?')">Logout</a>
         </nav>
         <!-- <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-4 py-2 rounded">Dark Mode</button> -->
         <form method="GET" action="/projo/search.php" class="ml-4 flex items-center space-x-2">

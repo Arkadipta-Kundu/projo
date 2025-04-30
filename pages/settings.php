@@ -243,6 +243,13 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </form>
         </div>
         <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-bold mb-4">Logout</h3>
+            <p class="text-gray-600 mb-4">Click the button below to log out of your account.</p>
+            <form method="POST" action="/projo/logout.php">
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+            </form>
+        </div>
+        <div class="bg-white p-6 rounded shadow mb-6">
             <h3 class="text-xl font-bold mb-4">Reset Application</h3>
             <p class="text-gray-600 mb-4">Click the button below to reset all tables and their identity generation. This action cannot be undone.</p>
             <form method="POST" onsubmit="return confirm('Are you sure you want to reset all tables? This action cannot be undone!');">

@@ -14,6 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user'] = $user['username'];
+
+        if (!empty($_POST['remember_me'])) {
+            $token = bin2hex(random_bytes(16));
+            setcookie('remember_me', $token, time() + (30 * 24 * 60 * 60), '/'); // 30 days
+            $stmt = $pdo->prepare("UPDATE users SET remember_token = :token WHERE username = :username");
+            $stmt->execute([':token' => $token, ':username' => $user['username']]);
+        }
+
         header('Location: pages/dashboard.php');
         exit();
     } else {
@@ -54,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <label for="password" class="block font-bold">Password</label>
                     <input type="password" id="password" name="password" class="w-full border border-gray-300 p-2 rounded" required>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="remember_me" name="remember_me" class="mr-2">
+                    <label for="remember_me" class="text-sm">Remember me</label>
                 </div>
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Login</button>
                 <p class="text-center mt-4">
