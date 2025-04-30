@@ -112,7 +112,7 @@
 | Problem                  | Solution                                                                 |
 |--------------------------|--------------------------------------------------------------------------|
 | Database connection fail | Check `includes/db.php` credentials and ensure MySQL is running          |
-| Login fails              | Confirm user table exists and try default credentials                   |
+| Login fails              | Confirm user table exists and try default credentials or try to register youself                  |
 | Data not importing       | Check CSV/JSON file format and ensure columns match database schema      |
 | Export fails             | Ensure export handler (`export.php`) is accessible and correctly written |
 
@@ -123,6 +123,9 @@
 This project is open-source under the [MIT License](LICENSE).
 
 ---
+
+## ❗Disclaimer
+This project is on continuous developmentif you want latest features then just simply clone the project from the Github download as zip (recomended) , rather than downloading the zip file from the release. The zip form the release is more stable and well tested .
 
 ## 📬 Contact
 
