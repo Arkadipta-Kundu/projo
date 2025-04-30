@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch system info
-$appVersion = '1.0.0'; // Update this as needed
+$appVersion = '1.2.0'; // Update this as needed
 $lastUpdated = '2025-04-30'; // Update this as needed
 
 // Fetch logs with pagination
@@ -183,8 +183,13 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
                 <div>
-                    <label for="table_name" class="block font-bold">Table Name (for CSV)</label>
-                    <input type="text" id="table_name" name="table_name" class="w-full border border-gray-300 p-2 rounded" placeholder="e.g., tasks, projects">
+                    <label for="table_name" class="block font-bold">Table Name</label>
+                    <select id="table_name" name="table_name" class="w-full border border-gray-300 p-2 rounded" required>
+                        <option value="projects">Projects</option>
+                        <option value="tasks">Tasks</option>
+                        <option value="notes">Notes</option>
+                        <option value="issues">Issues</option>
+                    </select>
                 </div>
                 <div>
                     <label for="import_file" class="block font-bold">Upload File</label>
