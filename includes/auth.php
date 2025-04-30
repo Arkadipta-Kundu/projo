@@ -1,6 +1,6 @@
 <?php
-// filepath: c:\xampp\htdocs\projo\includes\auth.php
 session_start();
+include __DIR__ . '/db.php'; // Include the database connection
 
 if (!isset($_SESSION['user']) && isset($_COOKIE['remember_me'])) {
     $stmt = $pdo->prepare("SELECT username FROM users WHERE remember_token = :token");
