@@ -1,18 +1,24 @@
 # ![Projo Icon](assets/images/favicon.ico) Projo — Solo Project Manager
 
-**Projo** is a lightweight, self-hosted project management tool built for individuals and small teams. It helps you manage projects, tasks, notes, and issues efficiently with a clean UI and essential productivity features — including a visual Kanban board and data export options.
+**Projo** is a modern, self-hosted project management system built for solo developers and small teams. It offers everything you need to stay organized and productive — including project and task management, a visual Kanban board, Gantt charts, issue tracking, notes, imports/exports, and more — all wrapped in a clean, responsive UI.
 
 ---
 
 ## 🚀 Features
 
-- 🔐 **User Authentication** — Secure login/logout system to protect access.
-- 📁 **Project Management** — Create, update, delete, and track projects.
-- ✅ **Task Management** — Organize tasks with priorities, statuses, and project assignments.
-- 📊 **Kanban Board** — Drag-and-drop tasks across “To Do”, “In Progress”, and “Done”.
-- 📝 **Notes** — Add quick notes and optionally tag them to specific projects.
-- 🐞 **Issue Tracking** — Log issues with severity/status and convert them to actionable tasks.
-- 📤 **Data Export** — Export data as CSV or JSON for backup or integration.
+- 🔐 **User Authentication** — Secure login/logout with hashed passwords and change password option.
+- 📁 **Project Management** — Create, update, delete, and track project timelines with Gantt views.
+- ✅ **Task Management** — Manage tasks with priorities, due dates, and progress statuses.
+- 📊 **Kanban Board** — Drag-and-drop task interface with AJAX-based live updates and visual status feedback.
+- 🗓️ **Gantt Chart** — Visualize task and project timelines, complete with a today marker and flexible time views.
+- 📝 **Notes** — Jot down notes, search/filter them, and tag them to specific projects.
+- 🐞 **Issue Tracker** — Log issues by severity and status; convert them directly into actionable tasks.
+- 📤 **Data Export** — Download projects, tasks, notes, and issues as CSV or JSON for backup or external use.
+- 📥 **Data Import** — Upload structured JSON or CSV files to populate your project/task database.
+- 💾 **Database Backup** — Generate and download a full `.sql` backup of your database.
+- ♻️ **Reset Application** — Quickly clear all project data and return to default state.
+- 🌙 **Dark Mode** — Optional dark mode for a more comfortable visual experience.
+- 📚 **Activity Logs** — Track user events like data exports and password changes.
 
 ---
 
@@ -22,21 +28,19 @@
 
 - PHP-compatible web server (e.g. [XAMPP](https://www.apachefriends.org/))
 - MySQL or MariaDB
-- Modern web browser (Chrome, Firefox, etc.)
+- Modern browser (Chrome, Firefox, Edge)
 
-### Setup Steps
+### Setup
 
-1. **Download/Clone the Repository**  
-   Place the `projo` folder inside your web server’s root directory (e.g. `C:/xampp/htdocs/`).
+1. **Clone or Download Projo**  
+   Place the `projo` folder into your server’s root directory (e.g. `htdocs` for XAMPP).
 
-2. **Import the Database**
-
+2. **Import the Database**  
    - Open phpMyAdmin or use the MySQL CLI.
-   - Import the included `projo.sql` file. It creates the following tables:
-     - `users`, `projects`, `tasks`, `notes`, `issues`
+   - Import the included `projo.sql` file — this sets up all required tables.
 
-3. **Configure Database Credentials**  
-    Open `includes/db.php` and update your connection settings:
+3. **Edit Database Credentials**  
+   In `includes/db.php`, update your connection details:
 
    ```php
    $host = 'localhost';
@@ -45,106 +49,82 @@
    $pass = '';
    ```
 
-4. **Start Your Server**  
-   Launch your web server and visit:  
-   `http://localhost/projo/`
+4. **Launch Projo**  
+   Visit `http://localhost/projo/` in your browser.
 
 5. **Login**  
-   Use the default credentials:
-   - **Username**: `admin`
-   - **Password**: `password123`
+   Default credentials:  
+   - **Username:** `admin`  
+   - **Password:** `password123`
 
 ---
 
 ## 🧭 How to Use
 
-### 1. Login
+### 🔐 Authentication
+- Login required to access any feature
+- Change your password anytime from the Settings page
 
-Navigate to `login.php`, enter your credentials, and you’ll be redirected to the dashboard.
+### 🖥 Dashboard
+- Overview of all your project metrics, task statuses, upcoming deadlines, and data export tools
 
-### 2. Dashboard
+### 📁 Projects
+- Add/edit/delete projects
+- Track timelines in a Gantt chart with filtering options
 
-- View project/task counts and pending items
-- See upcoming deadlines
-- Export data directly from the dashboard
+### ✅ Tasks
+- Add tasks with start/end dates, priority levels, and linked projects
+- Drag and drop to reorder or change status in Kanban view
 
-### 3. Projects
+### 🗓️ Kanban & Gantt
+- Visualize tasks using a flexible Kanban board and Gantt chart
+- Easily update status or dependencies using interactive interfaces
 
-- Add a new project (title, description, deadline)
-- Edit or delete projects via the action buttons
+### 📝 Notes
+- Create quick notes and tag them by project
+- Filter/search through note entries
 
-### 4. Tasks
+### 🐞 Issues
+- Create issues by severity (Low, Medium, High)
+- Assign to projects, track status, and convert issues to tasks with one click
 
-- Create tasks with due dates, priorities, and statuses
-- Assign tasks to projects
-- Mark tasks complete using checkboxes
-- Edit/delete tasks anytime
+### 📤 Export & 📥 Import
+- Export selected data types to CSV or JSON
+- Import project/task data from external sources
+- View logs of all data-related activities
 
-### 5. Kanban Board
-
-- Drag-and-drop tasks between columns
-- Automatically updates task statuses visually
-
-### 6. Notes
-
-- Add simple notes for ideas or planning
-- Optionally tag notes to projects
-- Edit and delete notes
-
-### 7. Issues
-
-- Log bugs or problems with severity levels (Low, Medium, High)
-- Assign issues to projects if needed
-- Convert issues to tasks in one click
-- Full edit/delete support
-
-### 8. Export Data
-
-- Export projects, tasks, notes, or issues
-- Select CSV or JSON format
-- Use the “Export” section on the dashboard
-
-### 9. Logout
-
-- Use the Logout button in the navigation to securely end your session
+### ⚙️ Settings
+- Change password, export/import data, reset database, and view activity logs — all in one place
 
 ---
 
-## 🔐 Security Highlights
+## 🛡 Security
 
-- Passwords stored securely with `password_hash()`
-- Authenticated session-based access
-- Simple access control per login session
-
----
-
-## 🛠️ Troubleshooting
-
-| Issue                     | Solution                                                    |
-| ------------------------- | ----------------------------------------------------------- |
-| Database connection error | Check your `db.php` credentials and ensure MySQL is running |
-| Login not working         | Verify the `users` table exists and try default credentials |
-| Export not downloading    | Ensure `export.php` is correctly implemented and accessible |
+- Passwords securely hashed with `password_hash()`
+- Session-based authentication to restrict access
+- CSRF protection for key actions (e.g. password change, import)
+- Robust error handling for database operations
 
 ---
 
-## 🛣️ Roadmap / Future Ideas
+## 🧰 Troubleshooting
 
-- User roles and permissions (admin, editor, viewer)
-- Email notifications for task deadlines or issue updates
-- File attachments for tasks or issues
-- Calendar view for tasks
+| Problem                  | Solution                                                                 |
+|--------------------------|--------------------------------------------------------------------------|
+| Database connection fail | Check `includes/db.php` credentials and ensure MySQL is running          |
+| Login fails              | Confirm user table exists and try default credentials                   |
+| Data not importing       | Check CSV/JSON file format and ensure columns match database schema      |
+| Export fails             | Ensure export handler (`export.php`) is accessible and correctly written |
 
 ---
 
 ## 📄 License
 
-This project is open-source and free to use under the [MIT License](LICENSE).
+This project is open-source under the [MIT License](LICENSE).
 
 ---
 
 ## 📬 Contact
 
-For questions or feedback, reach out:  
-**Arkadipta Kundu** — [arkadipta.dev@gmail.com](mailto:arkadipta.dev@gmail.com)
-
+Developed by **Arkadipta Kundu**  
+✉️ [arkadipta.dev@gmail.com](mailto:arkadipta.dev@gmail.com)
