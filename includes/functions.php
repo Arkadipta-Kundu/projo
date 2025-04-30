@@ -328,3 +328,24 @@ function resetTotalTime($pdo)
 {
     $pdo->exec("TRUNCATE TABLE task_time_tracking");
 }
+
+// Get completed tasks
+function getCompletedTasks($pdo)
+{
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks WHERE status = 'Done'");
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+// Get overdue tasks
+function getOverdueTasks($pdo)
+{
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks WHERE due_date < CURDATE() AND status != 'Done'");
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+
+// Get total issues
+function getTotalIssues($pdo)
+{
+    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM issues");
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}

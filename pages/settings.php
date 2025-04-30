@@ -132,9 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch system info
-$appVersion = '1.2.1'; // Update this as needed
-$lastUpdated = '2025-04-30'; // Update this as needed
+// Fetch system infoUnreleased
+$appVersion = '1.4.0 (God edition)'; // Update this as needed
+$lastUpdated = '01-05-2025'; // Update this as needed
 
 // Fetch logs with pagination
 $page = $_GET['page'] ?? 1;
