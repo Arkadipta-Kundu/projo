@@ -50,7 +50,12 @@ $totalTimeSpent = getTotalTimeSpent($pdo);
             <select id="task-select" class="w-full border border-gray-300 p-2 rounded">
                 <option value="">-- Select a Task --</option>
                 <?php foreach ($tasks as $task): ?>
-                    <option value="<?= $task['id'] ?>"><?= htmlspecialchars($task['title']) ?></option>
+                    <option value="<?= $task['id'] ?>">
+                        <?= htmlspecialchars($task['title']) ?>
+                        <?php if (!empty($task['project_title'])): ?>
+                            (<?= htmlspecialchars($task['project_title']) ?>)
+                        <?php endif; ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -78,8 +83,15 @@ $totalTimeSpent = getTotalTimeSpent($pdo);
                 <tbody>
                     <?php foreach ($tasks as $task): ?>
                         <tr>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= gmdate("H:i:s", getTaskTotalTime($pdo, $task['id'])) ?></td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                <?= htmlspecialchars($task['title']) ?>
+                                <?php if (!empty($task['project_title'])): ?>
+                                    (<?= htmlspecialchars($task['project_title']) ?>)
+                                <?php endif; ?>
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2">
+                                <?= gmdate("H:i:s", getTaskTotalTime($pdo, $task['id'])) ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
