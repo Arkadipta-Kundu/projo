@@ -13,6 +13,8 @@ $tasks = getAllTasks($pdo);
     <meta charset="UTF-8">
     <title>kanban</title>
     <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <!-- Include the script in the head or before the closing body tag -->
+    <script src="/projo/assets/js/script.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

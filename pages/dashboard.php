@@ -21,6 +21,7 @@ $upcomingTasks = getUpcomingTasks($pdo);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/projo/assets/js/script.js"></script>
 </head>
 
 
@@ -41,28 +42,6 @@ $upcomingTasks = getUpcomingTasks($pdo);
                 <h3 class="text-xl font-semibold">Pending Tasks</h3>
                 <p class="text-2xl font-bold text-yellow-600"><?= $pendingTasks ?></p>
             </div>
-        </div>
-        <div class="bg-white p-6 rounded shadow mb-8">
-            <h3 class="text-2xl font-bold mb-4">Export Data</h3>
-            <form method="GET" action="/projo/export.php" class="space-y-4">
-                <div>
-                    <label for="type" class="block font-bold">What to Export</label>
-                    <select id="type" name="type" class="w-full border border-gray-300 p-2 rounded" required>
-                        <option value="projects">Projects</option>
-                        <option value="tasks">Tasks</option>
-                        <option value="notes">Notes</option>
-                        <option value="issues">Issues</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="format" class="block font-bold">Export Format</label>
-                    <select id="format" name="format" class="w-full border border-gray-300 p-2 rounded" required>
-                        <option value="csv">CSV</option>
-                        <option value="json">JSON</option>
-                    </select>
-                </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Export</button>
-            </form>
         </div>
         <div class="bg-white p-6 rounded shadow">
             <h3 class="text-2xl font-bold mb-4">Upcoming Tasks (Due Today/Tomorrow)</h3>

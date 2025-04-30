@@ -183,3 +183,108 @@ footer {
   font-size: 0.9rem;
   color: #9ca3af;
 }
+
+/* General Dark Mode Styles */
+body.dark {
+  background-color: #121212; /* Fully dark background */
+  color: #e0e0e0; /* Light text for better visibility */
+}
+
+/* Header & Navbar in Dark Mode */
+header.dark,
+.navbar.dark {
+  background-color: #1e1e1e; /* Darker header background */
+  color: #e0e0e0; /* Light text */
+}
+
+/* Cards in Dark Mode */
+body.dark .bg-white,
+body.dark .card {
+  background-color: #1e1e1e; /* Dark card background */
+  color: #e0e0e0; /* Light text */
+  border: 1px solid #2a2a2a; /* Subtle border for separation */
+}
+
+/* Tables in Dark Mode */
+body.dark table {
+  background-color: #1e1e1e; /* Dark table background */
+  color: #e0e0e0; /* Light text */
+  border-color: #2a2a2a; /* Darker border */
+}
+
+body.dark th {
+  background-color: #2a2a2a; /* Slightly lighter dark for headers */
+  color: #e0e0e0; /* Light text */
+}
+
+body.dark td {
+  background-color: #1e1e1e; /* Dark cell background */
+  border-color: #2a2a2a; /* Darker border */
+}
+
+/* Forms in Dark Mode */
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background-color: #2a2a2a; /* Dark input background */
+  color: #e0e0e0; /* Light text */
+  border: 1px solid #3a3a3a; /* Darker border */
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+  color: #a0a0a0; /* Lighter placeholder text */
+}
+
+body.dark input:focus,
+body.dark textarea:focus,
+body.dark select:focus {
+  border-color: #3b82f6; /* Blue border on focus */
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); /* Subtle blue glow */
+}
+
+/* Buttons in Dark Mode */
+body.dark button {
+  background-color: #3a3a3a; /* Dark button background */
+  color: #e0e0e0; /* Light text */
+  border: 1px solid #4a4a4a; /* Darker border */
+}
+
+body.dark button:hover {
+  background-color: #4a4a4a; /* Slightly lighter on hover */
+}
+
+/* Status Badges in Dark Mode */
+body.dark .status.pending {
+  background-color: #f59e0b; /* Amber for pending */
+  color: #1e1e1e; /* Dark text */
+}
+
+body.dark .status.completed {
+  background-color: #10b981; /* Green for completed */
+  color: #1e1e1e; /* Dark text */
+}
+
+body.dark .status.in-progress {
+  background-color: #3b82f6; /* Blue for in-progress */
+  color: #1e1e1e; /* Dark text */
+}
+
+/* Footer in Dark Mode */
+body.dark footer {
+  background-color: #1e1e1e; /* Dark footer background */
+  color: #a0a0a0; /* Lighter text */
+}
+
+/* Transition for Smooth Theme Change */
+body,
+header,
+.navbar,
+.bg-white,
+input,
+textarea,
+select,
+button,
+table {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}

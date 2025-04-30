@@ -15,8 +15,8 @@ function getAllTasks($pdo)
 function createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id)
 {
     $stmt = $pdo->prepare("
-        INSERT INTO tasks (title, description, due_date, priority, status, project_id) 
-        VALUES (:title, :description, :due_date, :priority, :status, :project_id)
+        INSERT INTO tasks (title, description, start_date, due_date, priority, status, project_id) 
+        VALUES (:title, :description, CURDATE(), :due_date, :priority, :status, :project_id)
     ");
     $stmt->execute([
         ':title' => $title,
@@ -271,4 +271,17 @@ function convertIssueToTask($pdo, $id)
         // Delete the issue after converting it to a task
         deleteIssue($pdo, $id);
     }
+}
+function handleError($message)
+{
+    echo "<script>alert('" . addslashes($message) . "');</script>";
+}
+
+function logActivity($pdo, $username, $action)
+{
+    $stmt = $pdo->prepare("INSERT INTO activity_logs (username, action) VALUES (:username, :action)");
+    $stmt->execute([
+        ':username' => $username,
+        ':action' => $action,
+    ]);
 }

@@ -44,6 +44,8 @@ if ($format === 'csv') {
     exportJSON($data, $type);
 }
 
+logActivity($pdo, $_SESSION['user'], "Exported $type data as $format");
+
 // Export as CSV
 function exportCSV($data, $type)
 {
@@ -75,3 +77,5 @@ function exportJSON($data, $type)
     echo json_encode($data, JSON_PRETTY_PRINT);
     exit();
 }
+
+logActivity($pdo, $_SESSION['user'], "Exported $type data as $format");

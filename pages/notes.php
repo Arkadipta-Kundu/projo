@@ -44,6 +44,8 @@ $projects = getAllProjects($pdo);
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/projo/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Include the script in the head or before the closing body tag -->
+    <script src="/projo/assets/js/script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
