@@ -170,6 +170,32 @@ $projects = getAllProjects($pdo);
             document.getElementById('status').value = task.status;
             document.getElementById('project_id').value = task.project_id;
         }
+
+        function startTimer(taskId) {
+            fetch('/projo/api/task_timer.php?action=start&task_id=' + taskId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Timer started!');
+                        location.reload();
+                    } else {
+                        alert('Failed to start timer.');
+                    }
+                });
+        }
+
+        function stopTimer(taskId) {
+            fetch('/projo/api/task_timer.php?action=stop&task_id=' + taskId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Timer stopped!');
+                        location.reload();
+                    } else {
+                        alert('Failed to stop timer.');
+                    }
+                });
+        }
     </script>
 </body>
 

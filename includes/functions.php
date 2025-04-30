@@ -285,3 +285,46 @@ function logActivity($pdo, $username, $action)
         ':action' => $action,
     ]);
 }
+// Start time tracking for a task
+function startTaskTimer($pdo, $task_id)
+{
+    $stmt = $pdo->prepare("INSERT INTO task_time_tracking (task_id, start_time) VALUES (:task_id, NOW())");
+    $stmt->execute([':task_id' => $task_id]);
+}
+
+// Stop time tracking for a task
+function stopTaskTimer($pdo, $task_id)
+{
+    $stmt = $pdo->prepare("
+        UPDATE task_time_tracking 
+        SET end_time = NOW(), duration = TIMESTAMPDIFF(SECOND, start_time, NOW()) 
+        WHERE task_id = :task_id AND end_time IS NULL
+    ");
+    $stmt->execute([':task_id' => $task_id]);
+}
+
+// Get total time spent on a task
+function getTaskTotalTime($pdo, $task_id)
+{
+    $stmt = $pdo->prepare("
+        SELECT SUM(duration) AS total_time 
+        FROM task_time_tracking 
+        WHERE task_id = :task_id
+    ");
+    $stmt->execute([':task_id' => $task_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total_time'] ?? 0;
+}
+// Get total time spent on all tasks
+function getTotalTimeSpent($pdo)
+{
+    $stmt = $pdo->query("
+        SELECT SUM(duration) AS total_time 
+        FROM task_time_tracking
+    ");
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total_time'] ?? 0;
+}
+// Reset total time spent on all tasks
+function resetTotalTime($pdo)
+{
+    $pdo->exec("TRUNCATE TABLE task_time_tracking");
+}

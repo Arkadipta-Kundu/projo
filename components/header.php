@@ -11,6 +11,7 @@
             <a href="/projo/pages/tasks.php">Tasks</a>
             <a href="/projo/pages/kanban.php">Kanban</a>
             <a href="/projo/pages/gantt.php" class="hover:text-gray-300">Gantt Chart</a>
+            <a href="/projo/pages/timer.php">Timer</a>
             <a href="/projo/pages/notes.php">Notes</a>
             <a href="/projo/pages/issues.php">Issues</a>
             <a href="/projo/pages/settings.php">Settings</a>

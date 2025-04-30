@@ -43,6 +43,10 @@ $upcomingTasks = getUpcomingTasks($pdo);
                 <p class="text-2xl font-bold text-yellow-600"><?= $pendingTasks ?></p>
             </div>
         </div>
+        <div class="bg-purple-100 p-4 rounded shadow">
+            <h3 class="text-xl font-semibold">Total Time Spent</h3>
+            <p class="text-2xl font-bold text-purple-600"><?= gmdate("H:i:s", getTotalTimeSpent($pdo)) ?></p>
+        </div>
         <div class="bg-white p-6 rounded shadow">
             <h3 class="text-2xl font-bold mb-4">Upcoming Tasks (Due Today/Tomorrow)</h3>
             <table class="table-auto w-full border-collapse border border-gray-300">
