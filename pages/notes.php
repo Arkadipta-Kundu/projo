@@ -74,7 +74,7 @@ $projects = getAllProjects($pdo);
             </form>
         </div>
         <div class="bg-white p-6 rounded shadow">
-            <input type="text" id="search" class="w-full border border-gray-300 p-2 rounded mb-4" placeholder="Search notes...">
+            <!-- <input type="text" id="search" class="w-full border border-gray-300 p-2 rounded mb-4" placeholder="Search notes..."> -->
             <ul id="notes-list" class="space-y-2">
                 <?php foreach ($notes as $note): ?>
                     <li class="bg-gray-100 p-4 rounded shadow flex justify-between items-center">

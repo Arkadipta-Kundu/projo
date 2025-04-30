@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch system info
-$appVersion = '1.2.0'; // Update this as needed
+$appVersion = '1.2.1'; // Update this as needed
 $lastUpdated = '2025-04-30'; // Update this as needed
 
 // Fetch logs with pagination
