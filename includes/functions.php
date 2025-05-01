@@ -349,3 +349,15 @@ function getTotalIssues($pdo)
     $stmt = $pdo->query("SELECT COUNT(*) AS total FROM issues");
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
+
+function getTotalTimeByProject($pdo, $project_id)
+{
+    $stmt = $pdo->prepare("
+        SELECT SUM(duration) AS total_time 
+        FROM task_time_tracking 
+        INNER JOIN tasks ON task_time_tracking.task_id = tasks.id
+        WHERE tasks.project_id = :project_id
+    ");
+    $stmt->execute([':project_id' => $project_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total_time'] ?? 0;
+}

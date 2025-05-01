@@ -64,6 +64,17 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
 );
 
+-- Task time tracking table
+CREATE TABLE IF NOT EXISTS task_time_tracking (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    task_id INT NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME DEFAULT NULL,
+    duration INT DEFAULT NULL,
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
 -- Insert default admin user
 INSERT INTO users (username, password) 
-VALUES ('admin', '$2y$10$eImiTXuWVxfM37uY4JANjQe5pZ1u3WJQ7h3FQ9FQ9FQ9FQ9FQ9FQ9'); -- Password: password123
+VALUES ('admin', '$2y$10$eImiTXuWVxfM37uY4JANjQe5pZ1u3WJQ7h3FQ9FQ9FQ9FQ9FQ9FQ9') 
+ON DUPLICATE KEY UPDATE username = username; -- Password: password123

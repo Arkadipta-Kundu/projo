@@ -10,11 +10,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_time'])) {
     exit();
 }
 
-// Fetch all tasks
+// Fetch all tasks and projects
 $tasks = getAllTasks($pdo);
+$projects = getAllProjects($pdo);
 
 // Fetch total time spent on all tasks
 $totalTimeSpent = getTotalTimeSpent($pdo);
+
+// Initialize filtered time
+$filteredTime = $totalTimeSpent;
+
+// Handle project filter
+if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
+    $project_id = (int)$_GET['project_id'];
+    $filteredTime = getTotalTimeByProject($pdo, $project_id);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +37,7 @@ $totalTimeSpent = getTotalTimeSpent($pdo);
     <link rel="stylesheet" href="/projo/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/projo/assets/js/script.js"></script> <!-- Include the dark mode script -->
+    <script src="/projo/assets/js/script.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -38,9 +48,25 @@ $totalTimeSpent = getTotalTimeSpent($pdo);
         <!-- Total Time Spent -->
         <div class="bg-purple-100 p-4 rounded shadow mb-6">
             <h3 class="text-xl font-semibold">Total Time Spent</h3>
-            <p class="text-2xl font-bold text-purple-600"><?= gmdate("H:i:s", $totalTimeSpent) ?></p>
+            <p class="text-2xl font-bold text-purple-600"><?= gmdate("H:i:s", $filteredTime) ?></p>
             <form method="POST" class="mt-4">
                 <button type="submit" name="reset_time" class="bg-red-500 text-white px-4 py-2 rounded">Reset Total Time</button>
+            </form>
+        </div>
+
+        <!-- Project Filter -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-bold mb-4">Filter by Project</h3>
+            <form method="GET" class="space-y-4">
+                <select name="project_id" class="w-full border border-gray-300 p-2 rounded">
+                    <option value="">-- All Projects --</option>
+                    <?php foreach ($projects as $project): ?>
+                        <option value="<?= $project['id'] ?>" <?= isset($_GET['project_id']) && $_GET['project_id'] == $project['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($project['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
             </form>
         </div>
 

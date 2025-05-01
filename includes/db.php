@@ -8,5 +8,5 @@ try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("DB Connection failed: " . $e->getMessage());
+    throw new Exception("DB Connection failed: " . $e->getMessage());
 }
