@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch system infoUnreleased
-$appVersion = '1.4.0 (God edition)'; // Update this as needed
+$appVersion = '1.5.0 (God edition)'; // Update this as needed
 $lastUpdated = '01-05-2025'; // Update this as needed
 
 // Fetch logs with pagination

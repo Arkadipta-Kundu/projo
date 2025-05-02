@@ -97,7 +97,7 @@
 <body>
     <div class="error-container">
         <img src="https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif" alt="Error GIF" class="error-gif">
-        <h1>Connection Error</h1>
+        <h1>Don't worry we will right back !</h1>
         <p>It seems like your XAMPP or MySQL server is not running. Please check and try again.</p>
         <button id="retry-button">Retry</button>
         <button id="show-error-button">Show Error Details</button>

@@ -21,6 +21,7 @@
 - ♻️ **Reset Application** — Clear all project data and restore default state when needed.
 - 🌙 **Dark Mode** — Switch to dark mode for a more comfortable visual experience.
 - 📚 **Activity Logs** — Track user activity like exports, resets, logins, and password changes.
+- 📚 **Error Handling Page** — Better error handling for errors like db connection fails or illigal sql and similer by .
 
 ---
 
