@@ -20,6 +20,7 @@ try {
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(50) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'user',
             remember_token VARCHAR(255) DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -85,8 +86,8 @@ try {
     // Insert default admin user
     $defaultPassword = password_hash('password123', PASSWORD_DEFAULT);
     $pdo->exec("
-        INSERT INTO users (username, password) 
-        VALUES ('admin', '$defaultPassword')
+        INSERT INTO users (username, password, role) 
+        VALUES ('admin', '$defaultPassword', 'admin')
         ON DUPLICATE KEY UPDATE username = username;
     ");
 

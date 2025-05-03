@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_time'])) {
 }
 
 // Fetch all tasks and projects
-$tasks = getAllTasks($pdo);
-$projects = getAllProjects($pdo);
+$tasks = getAllTasks($pdo, $_SESSION['user_id']);
+$projects = getAllProjects($pdo, $_SESSION['user_id']);
 
 // Fetch total time spent on all tasks
-$totalTimeSpent = getTotalTimeSpent($pdo);
+$totalTimeSpent = getTotalTimeSpent($pdo, $_SESSION['user_id']);
 
 // Initialize filtered time
 $filteredTime = $totalTimeSpent;
@@ -23,7 +23,7 @@ $filteredTime = $totalTimeSpent;
 // Handle project filter
 if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
     $project_id = (int)$_GET['project_id'];
-    $filteredTime = getTotalTimeByProject($pdo, $project_id);
+    $filteredTime = getTotalTimeByProject($pdo, $project_id, $_SESSION['user_id']);
 }
 ?>
 <!DOCTYPE html>

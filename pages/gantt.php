@@ -3,6 +3,11 @@ include __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
+$is_admin = ($_SESSION['role'] === 'admin');
+
+$projects = getAllProjects($pdo, $_SESSION['user_id'], $is_admin);
+$tasks = getAllTasks($pdo, $_SESSION['user_id'], $is_admin);
+
 // Initialize variables with default values
 $project_id = isset($_GET['project_id']) ? (int)$_GET['project_id'] : (isset($_COOKIE['project_id']) ? (int)$_COOKIE['project_id'] : null);
 $view_type = isset($_GET['view']) ? $_GET['view'] : (isset($_COOKIE['view_type']) ? $_COOKIE['view_type'] : 'all');
@@ -37,7 +42,7 @@ if ($project_id) {
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
     // Fetch all projects
-    $projects = getAllProjects($pdo);
+    $projects = getAllProjects($pdo, $_SESSION['user_id']);
 
     // Fetch all tasks or only those with project assignments
     if ($view_type == 'tasks') {

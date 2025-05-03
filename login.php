@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user'] = $user['username'];
+        $_SESSION['user_id'] = $user['id']; // Add this line to set the user ID in the session
+        $_SESSION['role'] = $user['role']; // If roles are used
 
         if (!empty($_POST['remember_me'])) {
             $token = bin2hex(random_bytes(16));

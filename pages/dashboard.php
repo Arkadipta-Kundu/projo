@@ -3,17 +3,24 @@ include __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /projo/login.php');
+    exit();
+}
+
+$is_admin = ($_SESSION['role'] === 'admin');
+
 // Fetch counts
-$totalProjects = getTotalProjects($pdo);
-$totalTasks = getTotalTasks($pdo);
-$pendingTasks = getPendingTasks($pdo);
-$completedTasks = getCompletedTasks($pdo);
-$overdueTasks = getOverdueTasks($pdo);
-$totalIssues = getTotalIssues($pdo);
-$upcomingTasks = getUpcomingTasks($pdo);
+$totalProjects = getTotalProjects($pdo, $_SESSION['user_id'], $is_admin);
+$totalTasks = getTotalTasks($pdo, $_SESSION['user_id'], $is_admin);
+$pendingTasks = getPendingTasks($pdo, $_SESSION['user_id'], $is_admin);
+$completedTasks = getCompletedTasks($pdo, $_SESSION['user_id'], $is_admin);
+$overdueTasks = getOverdueTasks($pdo, $_SESSION['user_id'], $is_admin);
+$totalIssues = getTotalIssues($pdo, $_SESSION['user_id'], $is_admin);
+$upcomingTasks = getUpcomingTasks($pdo, $_SESSION['user_id'], $is_admin);
 
 // Fetch all tasks for the calendar
-$allTasks = getAllTasks($pdo);
+$allTasks = getAllTasks($pdo, $_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +74,7 @@ $allTasks = getAllTasks($pdo);
         </div>
         <div class="bg-purple-100 p-4 rounded shadow mb-8">
             <h3 class="text-xl font-semibold">Total Time Spent</h3>
-            <p class="text-2xl font-bold text-purple-600"><?= gmdate("H:i:s", getTotalTimeSpent($pdo)) ?></p>
+            <p class="text-2xl font-bold text-purple-600"><?= gmdate("H:i:s", getTotalTimeSpent($pdo, $_SESSION['user_id'])) ?></p>
         </div>
         <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-2xl font-bold mb-4">Upcoming Tasks (Due Today/Tomorrow)</h3>

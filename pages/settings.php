@@ -168,6 +168,20 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php if ($message): ?>
             <p class="text-green-500 mb-4"><?= htmlspecialchars($message) ?></p>
         <?php endif; ?>
+
+        <!-- Account Details Section -->
+        <div class="bg-white p-6 rounded shadow mb-8">
+            <h3 class="text-xl font-bold mb-4">Account Details</h3>
+            <?php
+            // Fetch current user's name and username
+            $stmt = $pdo->prepare("SELECT name, username FROM users WHERE id = :id");
+            $stmt->execute([':id' => $_SESSION['user_id']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+            <p><strong>Name:</strong> <?= htmlspecialchars($user['name'] ?? '') ?></p>
+            <p><strong>Username:</strong> <?= htmlspecialchars($user['username'] ?? '') ?></p>
+        </div>
+
         <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Toggle Dark Mode</h3>
             <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-4 py-2 rounded">Dark Mode</button>

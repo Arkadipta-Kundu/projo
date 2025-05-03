@@ -3,6 +3,10 @@ include __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
+$is_admin = ($_SESSION['role'] === 'admin');
+
+$issues = getAllIssues($pdo, $_SESSION['user_id'], $is_admin);
+$projects = getAllProjects($pdo, $_SESSION['user_id'], $is_admin);
 // Handle form submission (Create or Update)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'] ?? null;
@@ -18,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             updateIssue($pdo, $id, $title, $description, $severity, $status, $project_id);
         } else {
             // Create new issue
-            createIssue($pdo, $title, $description, $severity, $status, $project_id);
+            createIssue($pdo, $title, $description, $severity, $status, $project_id, $_SESSION['user_id']);
         }
     }
 }
@@ -38,14 +42,14 @@ if (isset($_GET['convert_to_task'])) {
     $id = $_GET['convert_to_task'];
     if (!empty($id)) {
         convertIssueToTask($pdo, $id);
-        header('Location: tasks.php');
+        header('Location: tasks.php'); // Redirect to the tasks page after conversion
         exit();
     }
 }
 
 // Fetch all issues and projects
-$issues = getAllIssues($pdo);
-$projects = getAllProjects($pdo);
+$issues = getAllIssues($pdo, $_SESSION['user_id']);
+$projects = getAllProjects($pdo, $_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -115,6 +119,9 @@ $projects = getAllProjects($pdo);
                         <th class="border border-gray-300 px-4 py-2">Severity</th>
                         <th class="border border-gray-300 px-4 py-2">Status</th>
                         <th class="border border-gray-300 px-4 py-2">Project</th>
+                        <?php if ($is_admin): ?>
+                            <th class="border border-gray-300 px-4 py-2">Created By</th>
+                        <?php endif; ?>
                         <th class="border border-gray-300 px-4 py-2">Actions</th>
                     </tr>
                 </thead>
@@ -127,6 +134,9 @@ $projects = getAllProjects($pdo);
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($issue['severity']) ?></td>
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($issue['status']) ?></td>
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($issue['project_title'] ?? 'Unassigned') ?></td>
+                            <?php if ($is_admin): ?>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($issue['created_by']) ?></td>
+                            <?php endif; ?>
                             <td class="border border-gray-300 px-4 py-2">
                                 <button class="bg-yellow-500 text-white px-2 py-1 rounded" onclick="editIssue(<?= htmlspecialchars(json_encode($issue)) ?>)">Edit</button>
                                 <a href="?delete=<?= $issue['id'] ?>" class="bg-red-500 text-white px-2 py-1 rounded">Delete</a>

@@ -10,12 +10,14 @@ try {
 }
 
 if (!isset($_SESSION['user']) && isset($_COOKIE['remember_me'])) {
-    $stmt = $pdo->prepare("SELECT username FROM users WHERE remember_token = :token");
+    $stmt = $pdo->prepare("SELECT id, username, role FROM users WHERE remember_token = :token");
     $stmt->execute([':token' => $_COOKIE['remember_me']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
         $_SESSION['user'] = $user['username'];
+        $_SESSION['user_id'] = $user['id']; // Ensure user_id is set
+        $_SESSION['role'] = $user['role'];
     }
 }
 

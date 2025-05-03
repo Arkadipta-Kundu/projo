@@ -3,6 +3,8 @@ include __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
+$is_admin = ($_SESSION['role'] === 'admin'); // Define $is_admin
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? '';
@@ -18,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             updateTask($pdo, $_POST['id'], $title, $description, $due_date, $priority, $status, $project_id);
         } else {
             // Create new task
-            createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id);
+            createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id, $_SESSION['user_id']);
         }
     }
 }
@@ -45,8 +47,8 @@ if (isset($_GET['toggle_status'])) {
 }
 
 // Fetch all tasks and projects
-$tasks = getAllTasks($pdo);
-$projects = getAllProjects($pdo);
+$tasks = getAllTasks($pdo, $_SESSION['user_id']);
+$projects = getAllProjects($pdo, $_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,9 +120,12 @@ $projects = getAllProjects($pdo);
                         <th class="border border-gray-300 px-4 py-2">ID</th>
                         <th class="border border-gray-300 px-4 py-2">Title</th>
                         <th class="border border-gray-300 px-4 py-2">Description</th>
+                        <th class="border border-gray-300 px-4 py-2">Due Date</th>
                         <th class="border border-gray-300 px-4 py-2">Priority</th>
                         <th class="border border-gray-300 px-4 py-2">Status</th>
-                        <th class="border border-gray-300 px-4 py-2">Project</th>
+                        <?php if ($is_admin): ?>
+                            <th class="border border-gray-300 px-4 py-2">Created By</th>
+                        <?php endif; ?>
                         <th class="border border-gray-300 px-4 py-2">Actions</th>
                     </tr>
                 </thead>
@@ -130,14 +135,12 @@ $projects = getAllProjects($pdo);
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['id']) ?></td>
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['description']) ?></td>
+                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['due_date']) ?></td>
                             <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['priority']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2">
-                                <a href="?toggle_status=<?= $task['id'] ?>&status=<?= $task['status'] === 'Done' ? 'To Do' : 'Done' ?>"
-                                    class="bg-<?= $task['status'] === 'Done' ? 'green' : 'gray' ?>-500 text-white px-2 py-1 rounded">
-                                    <?= $task['status'] ?>
-                                </a>
-                            </td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['project_title'] ?? 'Unassigned') ?></td>
+                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['status']) ?></td>
+                            <?php if ($is_admin): ?>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['created_by']) ?></td>
+                            <?php endif; ?>
                             <td class="border border-gray-300 px-4 py-2">
                                 <button class="bg-yellow-500 text-white px-2 py-1 rounded" onclick="editTask(<?= htmlspecialchars(json_encode($task)) ?>)">Edit</button>
                                 <a href="?delete=<?= $task['id'] ?>" class="bg-red-500 text-white px-2 py-1 rounded">Delete</a>

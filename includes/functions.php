@@ -1,22 +1,34 @@
 <?php
 // Fetch all tasks
-function getAllTasks($pdo)
+function getAllTasks($pdo, $user_id, $is_admin = false)
 {
-    $stmt = $pdo->query("
-        SELECT tasks.*, projects.title AS project_title 
-        FROM tasks 
-        LEFT JOIN projects ON tasks.project_id = projects.id 
-        ORDER BY tasks.due_date ASC
-    ");
+    if ($is_admin) {
+        $stmt = $pdo->prepare("
+            SELECT tasks.*, users.username AS created_by 
+            FROM tasks 
+            LEFT JOIN users ON tasks.user_id = users.id
+            ORDER BY due_date ASC
+        ");
+        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT tasks.*, users.username AS created_by 
+            FROM tasks 
+            LEFT JOIN users ON tasks.user_id = users.id
+            WHERE tasks.user_id = :user_id
+            ORDER BY due_date ASC
+        ");
+        $stmt->execute([':user_id' => $user_id]);
+    }
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Create a new task
-function createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id)
+function createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id, $user_id)
 {
     $stmt = $pdo->prepare("
-        INSERT INTO tasks (title, description, start_date, due_date, priority, status, project_id) 
-        VALUES (:title, :description, CURDATE(), :due_date, :priority, :status, :project_id)
+        INSERT INTO tasks (title, description, start_date, due_date, priority, status, project_id, user_id) 
+        VALUES (:title, :description, CURDATE(), :due_date, :priority, :status, :project_id, :user_id)
     ");
     $stmt->execute([
         ':title' => $title,
@@ -25,6 +37,7 @@ function createTask($pdo, $title, $description, $due_date, $priority, $status, $
         ':priority' => $priority,
         ':status' => $status,
         ':project_id' => $project_id,
+        ':user_id' => $user_id,
     ]);
 }
 
@@ -33,7 +46,12 @@ function updateTask($pdo, $id, $title, $description, $due_date, $priority, $stat
 {
     $stmt = $pdo->prepare("
         UPDATE tasks 
-        SET title = :title, description = :description, due_date = :due_date, priority = :priority, status = :status, project_id = :project_id 
+        SET title = :title, 
+            description = :description, 
+            due_date = :due_date, 
+            priority = :priority, 
+            status = :status, 
+            project_id = :project_id 
         WHERE id = :id
     ");
     $stmt->execute([
@@ -46,7 +64,6 @@ function updateTask($pdo, $id, $title, $description, $due_date, $priority, $stat
         ':project_id' => $project_id,
     ]);
 }
-
 // Delete a task
 function deleteTask($pdo, $id)
 {
@@ -65,20 +82,41 @@ function toggleTaskStatus($pdo, $id, $new_status)
 }
 
 // Fetch all projects
-function getAllProjects($pdo)
+function getAllProjects($pdo, $user_id, $is_admin = false)
 {
-    $stmt = $pdo->query("SELECT * FROM projects ORDER BY deadline ASC");
+    if ($is_admin) {
+        $stmt = $pdo->prepare("
+            SELECT projects.*, users.username AS created_by 
+            FROM projects 
+            LEFT JOIN users ON projects.user_id = users.id
+            ORDER BY deadline ASC
+        ");
+        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT projects.*, users.username AS created_by 
+            FROM projects 
+            LEFT JOIN users ON projects.user_id = users.id
+            WHERE projects.user_id = :user_id
+            ORDER BY deadline ASC
+        ");
+        $stmt->execute([':user_id' => $user_id]);
+    }
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Create a new project
-function createProject($pdo, $title, $description, $deadline)
+function createProject($pdo, $title, $description, $deadline, $user_id)
 {
-    $stmt = $pdo->prepare("INSERT INTO projects (title, description, deadline) VALUES (:title, :description, :deadline)");
+    $stmt = $pdo->prepare("
+        INSERT INTO projects (title, description, deadline, user_id) 
+        VALUES (:title, :description, :deadline, :user_id)
+    ");
     $stmt->execute([
         ':title' => $title,
         ':description' => $description,
         ':deadline' => $deadline,
+        ':user_id' => $user_id,
     ]);
 }
 
@@ -102,23 +140,30 @@ function deleteProject($pdo, $id)
 }
 
 // Get total projects
-function getTotalProjects($pdo)
+function getTotalProjects($pdo, $user_id, $is_admin = false)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM projects");
+    if ($is_admin) {
+        $stmt = $pdo->query("SELECT COUNT(*) AS total FROM projects");
+    } else {
+        $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM projects WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $user_id]);
+    }
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
 // Get total tasks
-function getTotalTasks($pdo)
+function getTotalTasks($pdo, $user_id)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tasks WHERE user_id = :user_id");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
 // Get pending tasks
-function getPendingTasks($pdo)
+function getPendingTasks($pdo, $user_id)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks WHERE status != 'Done'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tasks WHERE user_id = :user_id AND status = 'To Do'");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
@@ -149,27 +194,54 @@ function getPriorityColor($priority)
 }
 
 // Create a new note
-function createNote($pdo, $content, $project_id)
+function createNoteAndReturnId($pdo, $content, $project_id, $user_id)
 {
     $stmt = $pdo->prepare("
-        INSERT INTO notes (content, project_id) 
-        VALUES (:content, :project_id)
+        INSERT INTO notes (content, project_id, user_id) 
+        VALUES (:content, :project_id, :user_id)
     ");
     $stmt->execute([
         ':content' => $content,
         ':project_id' => $project_id,
+        ':user_id' => $user_id,
+    ]);
+    return $pdo->lastInsertId();
+}
+
+function createNote($pdo, $content, $project_id, $user_id)
+{
+    $sql = "INSERT INTO notes (content, project_id, user_id) VALUES (:content, :project_id, :user_id)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':content' => $content,
+        ':project_id' => $project_id,
+        ':user_id' => $user_id,
     ]);
 }
 
-// Fetch all notes
-function getAllNotes($pdo)
+function getNoteById($pdo, $id)
 {
-    $stmt = $pdo->query("
+    $stmt = $pdo->prepare("
         SELECT notes.*, projects.title AS project_title 
         FROM notes 
         LEFT JOIN projects ON notes.project_id = projects.id 
+        WHERE notes.id = :id
+    ");
+    $stmt->execute([':id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Fetch all notes
+function getAllNotes($pdo, $user_id)
+{
+    $stmt = $pdo->prepare("
+        SELECT notes.*, projects.title AS project_title 
+        FROM notes 
+        LEFT JOIN projects ON notes.project_id = projects.id 
+        WHERE notes.user_id = :user_id
         ORDER BY notes.id DESC
     ");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -196,10 +268,11 @@ function deleteNote($pdo, $id)
 }
 
 // Create a new issue
-function createIssue($pdo, $title, $description, $severity, $status, $project_id) {
+function createIssue($pdo, $title, $description, $severity, $status, $project_id, $user_id)
+{
     $stmt = $pdo->prepare("
-        INSERT INTO issues (title, description, severity, status, project_id) 
-        VALUES (:title, :description, :severity, :status, :project_id)
+        INSERT INTO issues (title, description, severity, status, project_id, user_id) 
+        VALUES (:title, :description, :severity, :status, :project_id, :user_id)
     ");
     $stmt->execute([
         ':title' => $title,
@@ -207,11 +280,13 @@ function createIssue($pdo, $title, $description, $severity, $status, $project_id
         ':severity' => $severity,
         ':status' => $status,
         ':project_id' => $project_id,
+        ':user_id' => $user_id,
     ]);
 }
 
 // Update an existing issue
-function updateIssue($pdo, $id, $title, $description, $severity, $status, $project_id) {
+function updateIssue($pdo, $id, $title, $description, $severity, $status, $project_id)
+{
     $stmt = $pdo->prepare("
         UPDATE issues 
         SET title = :title, description = :description, severity = :severity, status = :status, project_id = :project_id 
@@ -235,13 +310,28 @@ function deleteIssue($pdo, $id)
 }
 
 // Fetch all issues
-function getAllIssues($pdo) {
-    $stmt = $pdo->query("
-        SELECT issues.*, projects.title AS project_title 
-        FROM issues 
-        LEFT JOIN projects ON issues.project_id = projects.id 
-        ORDER BY issues.id DESC
-    ");
+function getAllIssues($pdo, $user_id, $is_admin = false)
+{
+    if ($is_admin) {
+        $stmt = $pdo->prepare("
+            SELECT issues.*, users.username AS created_by, projects.title AS project_title 
+            FROM issues 
+            LEFT JOIN users ON issues.user_id = users.id
+            LEFT JOIN projects ON issues.project_id = projects.id
+            ORDER BY issues.id DESC
+        ");
+        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT issues.*, users.username AS created_by, projects.title AS project_title 
+            FROM issues 
+            LEFT JOIN users ON issues.user_id = users.id
+            LEFT JOIN projects ON issues.project_id = projects.id
+            WHERE issues.user_id = :user_id
+            ORDER BY issues.id DESC
+        ");
+        $stmt->execute([':user_id' => $user_id]);
+    }
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -257,7 +347,7 @@ function convertIssueToTask($pdo, $id)
         // Map issue severity to task priority
         $priority = $issue['severity']; // Direct mapping: Low → Low, Medium → Medium, High → High
 
-        // Use the project_id from the issue when creating the task
+        // Use the project_id and user_id from the issue when creating the task
         createTask(
             $pdo,
             $issue['title'],
@@ -265,13 +355,15 @@ function convertIssueToTask($pdo, $id)
             date('Y-m-d'), // Default due date to today
             $priority, // Map severity to priority
             'To Do', // Default status
-            $issue['project_id'] // Assign the same project as the issue
+            $issue['project_id'], // Assign the same project as the issue
+            $issue['user_id'] // Pass the user_id from the issue
         );
 
         // Delete the issue after converting it to a task
         deleteIssue($pdo, $id);
     }
 }
+
 function handleError($message)
 {
     echo "<script>alert('" . addslashes($message) . "');</script>";
@@ -286,10 +378,16 @@ function logActivity($pdo, $username, $action)
     ]);
 }
 // Start time tracking for a task
-function startTaskTimer($pdo, $task_id)
+function startTaskTimer($pdo, $task_id, $user_id)
 {
-    $stmt = $pdo->prepare("INSERT INTO task_time_tracking (task_id, start_time) VALUES (:task_id, NOW())");
-    $stmt->execute([':task_id' => $task_id]);
+    $stmt = $pdo->prepare("
+        INSERT INTO task_time_tracking (task_id, start_time, user_id) 
+        VALUES (:task_id, NOW(), :user_id)
+    ");
+    $stmt->execute([
+        ':task_id' => $task_id,
+        ':user_id' => $user_id,
+    ]);
 }
 
 // Stop time tracking for a task
@@ -330,23 +428,26 @@ function resetTotalTime($pdo)
 }
 
 // Get completed tasks
-function getCompletedTasks($pdo)
+function getCompletedTasks($pdo, $user_id)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks WHERE status = 'Done'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tasks WHERE user_id = :user_id AND status = 'Done'");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
 // Get overdue tasks
-function getOverdueTasks($pdo)
+function getOverdueTasks($pdo, $user_id)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM tasks WHERE due_date < CURDATE() AND status != 'Done'");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM tasks WHERE user_id = :user_id AND due_date < CURDATE() AND status != 'Done'");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 
 // Get total issues
-function getTotalIssues($pdo)
+function getTotalIssues($pdo, $user_id)
 {
-    $stmt = $pdo->query("SELECT COUNT(*) AS total FROM issues");
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM issues WHERE user_id = :user_id");
+    $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 }
 

@@ -6,6 +6,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'] ?? '';
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -19,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Username already exists.';
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (:username, :password)");
-            $stmt->execute([':username' => $username, ':password' => $hashed_password]);
+            $stmt = $pdo->prepare("INSERT INTO users (name, username, password) VALUES (:name, :username, :password)");
+            $stmt->execute([':name' => $name, ':username' => $username, ':password' => $hashed_password]);
             $success = 'User created successfully. You can now log in.';
         }
     }
@@ -55,6 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p class="text-green-500 mb-4"><?= htmlspecialchars($success) ?></p>
             <?php endif; ?>
             <form method="POST" class="space-y-4">
+                <div>
+                    <label for="name" class="block font-bold">Name</label>
+                    <input type="text" id="name" name="name" class="w-full border border-gray-300 p-2 rounded" required>
+                </div>
                 <div>
                     <label for="username" class="block font-bold">Username</label>
                     <input type="text" id="username" name="username" class="w-full border border-gray-300 p-2 rounded" required>

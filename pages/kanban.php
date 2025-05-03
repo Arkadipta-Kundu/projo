@@ -4,7 +4,7 @@ include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
 // Fetch tasks grouped by status
-$tasks = getAllTasks($pdo);
+$tasks = getAllTasks($pdo, $_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
