@@ -12,6 +12,8 @@ include __DIR__ . '/../includes/functions.php';
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/projo/assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -55,7 +57,10 @@ include __DIR__ . '/../includes/functions.php';
                         list.append('<li class="text-gray-500">No conversations yet.</li>');
                     }
                     res.conversations.forEach(u => {
-                        list.append(`<li class="cursor-pointer hover:bg-gray-200 p-2 rounded mb-1" data-id="${u.id}" data-name="${u.name}">${u.name}</li>`);
+                        const dot = u.unread_count > 0 ?
+                            '<span class="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2 align-middle"></span>' :
+                            '';
+                        list.append(`<li class="cursor-pointer hover:bg-gray-200 p-2 rounded mb-1 flex items-center" data-id="${u.id}" data-name="${u.name}">${u.name}${dot}</li>`);
                     });
                 }
             });
@@ -166,6 +171,28 @@ include __DIR__ . '/../includes/functions.php';
                 $('#chat-panel').removeClass('hidden');
             }
         });
+    </script>
+    <script>
+        // Toggle dark mode
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Load saved theme from localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            if (themeToggle) themeToggle.textContent = 'Light Mode';
+        }
+
+        // Toggle theme on button click
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                const isDark = body.classList.contains('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            });
+        }
     </script>
 </body>
 

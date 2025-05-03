@@ -477,6 +477,11 @@ function sendMessage($pdo, $sender_id, $receiver_id, $message)
 // Fetch messages between two users
 function getMessages($pdo, $user1_id, $user2_id)
 {
+    // Mark messages as read
+    $stmt = $pdo->prepare("UPDATE messages SET is_read = 1 WHERE receiver_id = :user1 AND sender_id = :user2 AND is_read = 0");
+    $stmt->execute([':user1' => $user1_id, ':user2' => $user2_id]);
+
+    // Fetch messages
     $stmt = $pdo->prepare("
         SELECT messages.*, u1.username AS sender_name, u2.username AS receiver_name
         FROM messages
@@ -502,7 +507,12 @@ function searchUsers($pdo, $query, $exclude_id)
 function getConversations($pdo, $user_id)
 {
     $stmt = $pdo->prepare("
-        SELECT u.id, u.name, u.username, MAX(m.created_at) as last_message_time
+        SELECT 
+            u.id, 
+            u.name, 
+            u.username, 
+            MAX(m.created_at) as last_message_time,
+            SUM(CASE WHEN m.receiver_id = :uid AND m.is_read = 0 THEN 1 ELSE 0 END) as unread_count
         FROM messages m
         JOIN users u ON (u.id = m.sender_id AND m.receiver_id = :uid) OR (u.id = m.receiver_id AND m.sender_id = :uid)
         WHERE u.id != :uid
