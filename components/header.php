@@ -14,6 +14,7 @@
             <a href="/projo/pages/timer.php">Timer</a>
             <a href="/projo/pages/notes.php">Notes</a>
             <a href="/projo/pages/issues.php">Issues</a>
+            <a href="/projo/pages/chats.php">Chats</a>
             <a href="/projo/pages/settings.php">Settings</a>
         </nav>
         <!-- <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-4 py-2 rounded">Dark Mode</button> -->

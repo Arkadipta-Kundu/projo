@@ -462,3 +462,53 @@ function getTotalTimeByProject($pdo, $project_id)
     $stmt->execute([':project_id' => $project_id]);
     return $stmt->fetch(PDO::FETCH_ASSOC)['total_time'] ?? 0;
 }
+
+// Send a message
+function sendMessage($pdo, $sender_id, $receiver_id, $message)
+{
+    $stmt = $pdo->prepare("INSERT INTO messages (sender_id, receiver_id, message) VALUES (:sender_id, :receiver_id, :message)");
+    $stmt->execute([
+        ':sender_id' => $sender_id,
+        ':receiver_id' => $receiver_id,
+        ':message' => $message
+    ]);
+}
+
+// Fetch messages between two users
+function getMessages($pdo, $user1_id, $user2_id)
+{
+    $stmt = $pdo->prepare("
+        SELECT messages.*, u1.username AS sender_name, u2.username AS receiver_name
+        FROM messages
+        JOIN users u1 ON messages.sender_id = u1.id
+        JOIN users u2 ON messages.receiver_id = u2.id
+        WHERE (sender_id = :user1 AND receiver_id = :user2)
+           OR (sender_id = :user2 AND receiver_id = :user1)
+        ORDER BY created_at ASC
+    ");
+    $stmt->execute([':user1' => $user1_id, ':user2' => $user2_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Search users by username
+function searchUsers($pdo, $query, $exclude_id)
+{
+    $stmt = $pdo->prepare("SELECT id, username, name FROM users WHERE username LIKE :query AND id != :exclude_id LIMIT 10");
+    $stmt->execute([':query' => "%$query%", ':exclude_id' => $exclude_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Get all users (with real name) the current user has chatted with
+function getConversations($pdo, $user_id)
+{
+    $stmt = $pdo->prepare("
+        SELECT u.id, u.name, u.username, MAX(m.created_at) as last_message_time
+        FROM messages m
+        JOIN users u ON (u.id = m.sender_id AND m.receiver_id = :uid) OR (u.id = m.receiver_id AND m.sender_id = :uid)
+        WHERE u.id != :uid
+        GROUP BY u.id, u.name, u.username
+        ORDER BY last_message_time DESC
+    ");
+    $stmt->execute([':uid' => $user_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
