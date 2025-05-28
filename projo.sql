@@ -74,7 +74,5 @@ CREATE TABLE IF NOT EXISTS task_time_tracking (
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
 
--- Insert default admin user
-INSERT INTO users (username, password) 
-VALUES ('admin', '$2y$10$eImiTXuWVxfM37uY4JANjQe5pZ1u3WJQ7h3FQ9FQ9FQ9FQ9FQ9FQ9') 
-ON DUPLICATE KEY UPDATE username = username; -- Password: password123
+-- Note: No default user is created.
+-- The setup.php script will prompt you to create an admin user with a secure password.

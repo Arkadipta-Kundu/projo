@@ -70,14 +70,15 @@ if ($project_id) {
 
 <head>
     <meta charset="UTF-8">
-    <title>Gantt Chart</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <title>Gantt Charto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Include the script in the head or before the closing body tag -->
-    <script src="/projo/assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
     <!-- Frappe Gantt CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css">
     <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
@@ -86,6 +87,14 @@ if ($project_id) {
         .gantt-container {
             width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            min-height: 300px;
+            max-width: 100vw;
+        }
+
+        .gantt-container svg {
+            min-width: 900px;
+            /* Ensures horizontal scroll on mobile */
         }
 
         .gantt .bar-label {
@@ -133,13 +142,67 @@ if ($project_id) {
             margin-bottom: 1rem;
         }
 
-        /* Add this to your existing style section */
         .today-marker {
             pointer-events: none;
         }
 
         .gantt .grid-background {
             overflow: visible;
+        }
+
+        @media (max-width: 640px) {
+            .filter-bar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .filter-bar>div,
+            .filter-bar>button {
+                width: 100%;
+            }
+
+            .bg-white.p-4.rounded.shadow.mb-4>.flex {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .gantt-container {
+                min-width: 0;
+                max-width: 100vw;
+                overflow-x: auto;
+            }
+
+            .gantt-container svg {
+                min-width: 600px;
+            }
+
+            .gantt .bar-label {
+                font-size: 10px;
+            }
+
+            .gantt .bar,
+            .gantt .project .bar,
+            .gantt .task .bar {
+                height: 12px !important;
+            }
+
+            .gantt .bar-progress {
+                height: 12px !important;
+            }
+
+            h2.text-3xl {
+                font-size: 1.2rem;
+            }
+
+            .bg-white.p-6.rounded.shadow {
+                padding: 0.5rem;
+            }
+
+            .text-sm.text-gray-500.mt-4>.flex {
+                margin-bottom: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -282,27 +345,30 @@ if ($project_id) {
 
             // Only initialize Gantt if we have data
             if (tasks.length > 0) {
+                // Detect mobile and set default view mode
+                let initialView = 'Week';
+                if (window.innerWidth <= 640) {
+                    initialView = 'Day';
+                }
                 const gantt = new Gantt("#gantt", tasks, {
                     header_height: 50,
                     column_width: 30,
                     step: 24,
                     view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month', 'Year'],
-                    bar_height: 20,
+                    bar_height: window.innerWidth <= 640 ? 12 : 20,
                     bar_corner_radius: 3,
                     arrow_curve: 5,
                     padding: 18,
-                    view_mode: 'Week',
+                    view_mode: initialView,
                     date_format: 'YYYY-MM-DD',
                     language: 'en',
                     on_click: function(task) {
                         console.log(task);
                     },
                     on_date_change: function(task, start, end) {
-                        // Could implement AJAX update here
                         console.log(task, start, end);
                     },
                     on_progress_change: function(task, progress) {
-                        // Could implement AJAX update here
                         console.log(task, progress);
                     },
                     on_view_change: function(mode) {

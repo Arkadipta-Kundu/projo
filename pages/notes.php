@@ -3,134 +3,226 @@ include __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
-$projects = getAllProjects($pdo, $_SESSION['user_id']);
+$user_id = $_SESSION['user_id'];
+$projects = getAllProjects($pdo, $user_id, ($_SESSION['role'] === 'admin'));
+
+// Handle create/update
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $note_id = $_POST['note_id'] ?? '';
+    $content = $_POST['content'] ?? '';
+    $project_id = $_POST['project_id'] ?? null;
+    if (!empty($content)) {
+        if ($note_id) {
+            updateNote($pdo, $note_id, $content, $project_id);
+        } else {
+            createNote($pdo, $content, $project_id, $user_id);
+        }
+    }
+}
+
+// Handle delete
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    deleteNote($pdo, $id);
+}
+
+// Fetch notes
+if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
+    $notes = getNotesByProject($pdo, $user_id, $_GET['project_id']);
+} else {
+    $notes = getAllNotes($pdo, $user_id);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notes</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="/projo/assets/js/script.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+        .note-content-short {
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .note-content-fade:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2.5em;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 90%);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-blue-50 to-blue-200 min-h-screen text-gray-800">
     <?php include __DIR__ . '/../components/header.php'; ?>
     <main class="container mx-auto py-8">
-        <h2 class="text-3xl font-bold mb-4">Notes</h2>
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <button id="toggle-note-form" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Add Note</button>
-            <form id="note-form" class="space-y-4 hidden">
-                <input type="hidden" name="id" id="note-id">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold">Notes</h2>
+            <!-- Add Note Button on right -->
+            <button id="show-note-form" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold shadow transition-all duration-150">
+                <i class="fas fa-plus mr-2"></i>Add Note
+            </button>
+        </div>
+
+        <!-- Filter Form -->
+        <form method="GET" class="mb-6 flex gap-4 items-end">
+            <div>
+                <label for="filter_project" class="block font-semibold mb-1">Filter by Project</label>
+                <select id="filter_project" name="project_id" class="border border-gray-300 p-2 rounded">
+                    <option value="">All Projects</option>
+                    <?php foreach ($projects as $project): ?>
+                        <option value="<?= $project['id'] ?>" <?= (isset($_GET['project_id']) && $_GET['project_id'] == $project['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($project['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Apply Filter</button>
+        </form>
+
+        <!-- Note Form (hidden by default) -->
+        <div id="note-form-container" class="bg-white p-6 rounded-xl shadow mb-8 hidden">
+            <form method="POST" id="note-form" class="space-y-4">
+                <input type="hidden" name="note_id" id="note-id">
                 <div>
-                    <label for="content" class="block font-bold">Note</label>
-                    <textarea id="content" name="content" class="w-full border border-gray-300 p-2 rounded" rows="4" placeholder="Write a note..."></textarea>
-                </div>
-                <div>
-                    <label for="project_id" class="block font-bold">Tag to Project</label>
+                    <label for="project_id" class="block font-semibold mb-1">Project (optional)</label>
                     <select id="project_id" name="project_id" class="w-full border border-gray-300 p-2 rounded">
-                        <option value="">No Project</option>
+                        <option value="">Unassigned</option>
                         <?php foreach ($projects as $project): ?>
                             <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['title']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Note</button>
+                <div>
+                    <label class="block font-semibold mb-1">Content</label>
+                    <div id="quill-editor" style="height: 250px;"></div> <!-- Increased height from 120px to 220px -->
+                    <input type="hidden" name="content" id="content">
+                </div>
+                <div class="flex gap-2 justify-end">
+                    <button type="button" id="cancel-note-form" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold transition-all duration-150">Cancel</button>
+                    <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Save Note</button>
+                </div>
             </form>
         </div>
-        <div class="bg-white p-6 rounded shadow">
-            <ul id="notes-list" class="space-y-2"></ul>
+
+        <!-- Notes List (single column) -->
+        <div class="bg-white p-6 rounded-xl shadow">
+            <h3 class="text-xl font-bold mb-4">Your Notes</h3>
+            <?php if (empty($notes)): ?>
+                <p class="text-gray-600">No notes yet.</p>
+            <?php else: ?>
+                <div class="space-y-6">
+                    <?php foreach ($notes as $note): ?>
+                        <div class="bg-blue-50 rounded-lg p-4 shadow-inner relative">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-500"><?= $note['project_title'] ? htmlspecialchars($note['project_title']) : 'Unassigned' ?></span>
+                                <div class="flex gap-2">
+                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick="editNote(<?= htmlspecialchars(json_encode($note)) ?>)">Edit</button>
+                                    <a href="?delete=<?= $note['id'] ?>" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition" onclick="return confirm('Delete this note?');">Delete</a>
+                                </div>
+                            </div>
+                            <?php
+                            $plain = strip_tags($note['content']);
+                            $isLong = mb_strlen($plain) > 200 || substr_count($note['content'], '<p>') > 2;
+                            ?>
+                            <div class="note-content-short<?= $isLong ? ' note-content-fade' : '' ?>" id="note-content-<?= $note['id'] ?>">
+                                <div class="ql-editor"><?= $note['content'] ?></div>
+                            </div>
+                            <?php if ($isLong): ?>
+                                <button class="text-blue-600 underline mt-2" onclick="toggleNoteContent(<?= $note['id'] ?>, this)">View More</button>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </main>
     <script>
-        const toggleNoteFormButton = document.getElementById('toggle-note-form');
-        const noteForm = document.getElementById('note-form');
-        const notesList = document.getElementById('notes-list');
-
-        toggleNoteFormButton.addEventListener('click', () => {
-            noteForm.classList.toggle('hidden');
-            toggleNoteFormButton.textContent = noteForm.classList.contains('hidden') ? 'Add Note' : 'Cancel';
+        // Quill setup
+        var quill = new Quill('#quill-editor', {
+            theme: 'snow',
+            placeholder: 'Write your note here...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
         });
 
-        function renderNotes(notes) {
-            notesList.innerHTML = '';
-            notes.forEach(note => {
-                const li = document.createElement('li');
-                li.className = 'bg-gray-100 p-4 rounded shadow flex justify-between items-center';
-                li.innerHTML = `
-                    <div>
-                        <p class="text-gray-800">${note.content}</p>
-                        ${note.project_title ? `<p class="text-sm text-gray-600">Project: ${note.project_title}</p>` : ''}
-                    </div>
-                    <div class="space-x-2">
-                        <button class="bg-yellow-500 text-white px-2 py-1 rounded" onclick='editNote(${JSON.stringify(note)})'>Edit</button>
-                        <button class="bg-red-500 text-white px-2 py-1 rounded" onclick='deleteNote(${note.id})'>Delete</button>
-                    </div>
-                `;
-                notesList.appendChild(li);
+        // Show/hide note form logic
+        const showFormBtn = document.getElementById('show-note-form');
+        const noteFormContainer = document.getElementById('note-form-container');
+        const cancelFormBtn = document.getElementById('cancel-note-form');
+        const noteForm = document.getElementById('note-form');
+        const noteIdInput = document.getElementById('note-id');
+        const projectIdInput = document.getElementById('project_id');
+
+        showFormBtn.onclick = function() {
+            noteForm.reset();
+            noteIdInput.value = '';
+            projectIdInput.value = '';
+            quill.root.innerHTML = '';
+            noteFormContainer.classList.remove('hidden');
+            showFormBtn.classList.add('hidden');
+        };
+        cancelFormBtn.onclick = function() {
+            noteForm.reset();
+            noteIdInput.value = '';
+            projectIdInput.value = '';
+            quill.root.innerHTML = '';
+            noteFormContainer.classList.add('hidden');
+            showFormBtn.classList.remove('hidden');
+        };
+
+        // On submit, set hidden input to Quill HTML
+        noteForm.onsubmit = function() {
+            document.getElementById('content').value = quill.root.innerHTML;
+        };
+
+        // Edit note
+        function editNote(note) {
+            noteForm.reset();
+            noteIdInput.value = note.id;
+            projectIdInput.value = note.project_id || '';
+            quill.root.innerHTML = note.content;
+            noteFormContainer.classList.remove('hidden');
+            showFormBtn.classList.add('hidden');
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         }
 
-        function fetchNotes() {
-            fetch('/projo/api/notes.php')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) renderNotes(data.notes);
-                    else alert('Failed to load notes: ' + data.error);
-                });
+        // View more/less
+        function toggleNoteContent(id, btn) {
+            const div = document.getElementById('note-content-' + id);
+            if (div.classList.contains('note-content-short')) {
+                div.classList.remove('note-content-short', 'note-content-fade');
+                btn.textContent = 'View Less';
+            } else {
+                div.classList.add('note-content-short', 'note-content-fade');
+                btn.textContent = 'View More';
+            }
         }
-
-        function editNote(note) {
-            noteForm.classList.remove('hidden');
-            toggleNoteFormButton.textContent = 'Cancel';
-            document.getElementById('note-id').value = note.id;
-            document.getElementById('content').value = note.content;
-            document.getElementById('project_id').value = note.project_id || '';
-        }
-
-        function deleteNote(id) {
-            if (!confirm('Delete this note?')) return;
-            fetch('/projo/api/notes.php', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `id=${id}`
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) fetchNotes();
-                    else alert('Failed to delete note: ' + data.error);
-                });
-        }
-
-        noteForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(noteForm);
-            fetch('/projo/api/notes.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        fetchNotes();
-                        noteForm.reset();
-                        noteForm.classList.add('hidden');
-                        toggleNoteFormButton.textContent = 'Add Note';
-                    } else {
-                        alert('Failed to save note: ' + data.error);
-                    }
-                });
-        });
-
-        // Initial load
-        fetchNotes();
     </script>
 </body>
 

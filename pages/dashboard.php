@@ -4,7 +4,7 @@ include __DIR__ . '/../includes/db.php';
 include __DIR__ . '/../includes/functions.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /projo/login.php');
+    header('Location: ../login.php');
     exit();
 }
 
@@ -28,17 +28,61 @@ $allTasks = getAllTasks($pdo, $_SESSION['user_id']);
 <head>
     <meta charset="UTF-8">
     <title>Projo</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/projo/assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
 
     <!-- Add FullCalendar CSS and JS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <!-- Add this style block inside the <head> tag of pages/dashboard.php -->
+    <style>
+        @media (max-width: 768px) {
+            #calendar {
+                min-width: 0 !important;
+                width: 100% !important;
+                overflow-x: auto !important;
+            }
+
+            .fc {
+                font-size: 0.95rem !important;
+            }
+
+            .fc-toolbar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+            }
+
+            .fc-toolbar-chunk {
+                margin-bottom: 0.5rem !important;
+            }
+
+            .fc-header-toolbar {
+                flex-wrap: wrap !important;
+                gap: 0.5rem !important;
+            }
+
+            .fc-button,
+            .fc-button-group {
+                font-size: 0.95rem !important;
+                padding: 0.25rem 0.5rem !important;
+            }
+
+            .fc-toolbar-title {
+                font-size: 1.1rem !important;
+            }
+
+            .fc .fc-button {
+                min-width: 2.5rem !important;
+            }
+        }
+    </style>
 </head>
 
 
@@ -78,28 +122,30 @@ $allTasks = getAllTasks($pdo, $_SESSION['user_id']);
         </div>
         <div class="bg-white p-6 rounded shadow mb-8">
             <h3 class="text-2xl font-bold mb-4">Upcoming Tasks (Due Today/Tomorrow)</h3>
-            <table class="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border border-gray-300 px-4 py-2">ID</th>
-                        <th class="border border-gray-300 px-4 py-2">Title</th>
-                        <th class="border border-gray-300 px-4 py-2">Due Date</th>
-                        <th class="border border-gray-300 px-4 py-2">Priority</th>
-                        <th class="border border-gray-300 px-4 py-2">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($upcomingTasks as $task): ?>
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['id']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['due_date']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['priority']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['status']) ?></td>
+            <div class="overflow-x-auto w-full">
+                <table class="table-auto w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 px-4 py-2">ID</th>
+                            <th class="border border-gray-300 px-4 py-2">Title</th>
+                            <th class="border border-gray-300 px-4 py-2">Due Date</th>
+                            <th class="border border-gray-300 px-4 py-2">Priority</th>
+                            <th class="border border-gray-300 px-4 py-2">Status</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($upcomingTasks as $task): ?>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['id']) ?></td>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['due_date']) ?></td>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['priority']) ?></td>
+                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['status']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="bg-white p-6 rounded shadow">
             <h3 class="text-2xl font-bold mb-4">Task Calendar</h3>

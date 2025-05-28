@@ -24,15 +24,16 @@ function getAllTasks($pdo, $user_id, $is_admin = false)
 }
 
 // Create a new task
-function createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id, $user_id)
+function createTask($pdo, $title, $description, $start_date, $due_date, $priority, $status, $project_id, $user_id)
 {
     $stmt = $pdo->prepare("
         INSERT INTO tasks (title, description, start_date, due_date, priority, status, project_id, user_id) 
-        VALUES (:title, :description, CURDATE(), :due_date, :priority, :status, :project_id, :user_id)
+        VALUES (:title, :description, :start_date, :due_date, :priority, :status, :project_id, :user_id)
     ");
     $stmt->execute([
         ':title' => $title,
         ':description' => $description,
+        ':start_date' => $start_date,
         ':due_date' => $due_date,
         ':priority' => $priority,
         ':status' => $status,
@@ -42,19 +43,17 @@ function createTask($pdo, $title, $description, $due_date, $priority, $status, $
 }
 
 // Update an existing task
-function updateTask($pdo, $id, $title, $description, $due_date, $priority, $status, $project_id)
+function updateTask($pdo, $id, $title, $description, $due_date, $priority, $status, $project_id, $start_date = null)
 {
-    $stmt = $pdo->prepare("
+    $sql = "
         UPDATE tasks 
         SET title = :title, 
             description = :description, 
             due_date = :due_date, 
             priority = :priority, 
             status = :status, 
-            project_id = :project_id 
-        WHERE id = :id
-    ");
-    $stmt->execute([
+            project_id = :project_id";
+    $params = [
         ':id' => $id,
         ':title' => $title,
         ':description' => $description,
@@ -62,8 +61,16 @@ function updateTask($pdo, $id, $title, $description, $due_date, $priority, $stat
         ':priority' => $priority,
         ':status' => $status,
         ':project_id' => $project_id,
-    ]);
+    ];
+    if ($start_date !== null && $start_date !== '') {
+        $sql .= ", start_date = :start_date";
+        $params[':start_date'] = $start_date;
+    }
+    $sql .= " WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
 }
+
 // Delete a task
 function deleteTask($pdo, $id)
 {
@@ -352,6 +359,7 @@ function convertIssueToTask($pdo, $id)
             $pdo,
             $issue['title'],
             $issue['description'],
+            date('Y-m-d'), // Default start date to today
             date('Y-m-d'), // Default due date to today
             $priority, // Map severity to priority
             'To Do', // Default status
@@ -359,8 +367,12 @@ function convertIssueToTask($pdo, $id)
             $issue['user_id'] // Pass the user_id from the issue
         );
 
-        // Delete the issue after converting it to a task
-        deleteIssue($pdo, $id);
+        // Get the last inserted task id
+        $task_id = $pdo->lastInsertId();
+
+        // Link the issue to the new task (do not delete the issue)
+        $stmt = $pdo->prepare("UPDATE issues SET task_id = :task_id WHERE id = :id");
+        $stmt->execute([':task_id' => $task_id, ':id' => $id]);
     }
 }
 
@@ -521,4 +533,20 @@ function getConversations($pdo, $user_id)
     ");
     $stmt->execute([':uid' => $user_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getNotesByProject($pdo, $user_id, $project_id)
+{
+    $stmt = $pdo->prepare("SELECT notes.*, projects.title AS project_title FROM notes LEFT JOIN projects ON notes.project_id = projects.id WHERE notes.user_id = :user_id AND notes.project_id = :project_id ORDER BY notes.id DESC");
+    $stmt->execute([':user_id' => $user_id, ':project_id' => $project_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Helper: Get task status for a given task_id
+function getTaskStatus($pdo, $task_id)
+{
+    $stmt = $pdo->prepare("SELECT status FROM tasks WHERE id = :id");
+    $stmt->execute([':id' => $task_id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ? $row['status'] : null;
 }

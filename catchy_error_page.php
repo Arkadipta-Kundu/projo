@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Connection Error</title>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -106,9 +106,9 @@
 
     <script>
         function checkConnection() {
-            $.get('/projo/connection_check.php', function(response) {
+            $.get('connection_check.php', function(response) {
                 if (response.success) {
-                    window.location.href = '/projo/index.php'; // Redirect to the main page
+                    window.location.href = 'index.php'; // Redirect to the main page
                 } else {
                     $('#error-details').text(response.error);
                 }

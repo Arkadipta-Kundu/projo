@@ -24,16 +24,16 @@ if (!in_array($format, ['csv', 'json'])) {
 $data = [];
 switch ($type) {
     case 'tasks':
-        $data = getAllTasks($pdo);
+        $data = getAllTasks($pdo, $_SESSION['user']);
         break;
     case 'projects':
-        $data = getAllProjects($pdo);
+        $data = getAllProjects($pdo, $_SESSION['user']);
         break;
     case 'notes':
-        $data = getAllNotes($pdo);
+        $data = getAllNotes($pdo, $_SESSION['user']);
         break;
     case 'issues':
-        $data = getAllIssues($pdo);
+        $data = getAllIssues($pdo, $_SESSION['user']);
         break;
 }
 

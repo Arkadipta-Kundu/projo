@@ -9,6 +9,7 @@ $is_admin = ($_SESSION['role'] === 'admin'); // Define $is_admin
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? '';
     $description = $_POST['description'] ?? '';
+    $start_date = $_POST['start_date'] ?? '';
     $due_date = $_POST['due_date'] ?? '';
     $priority = $_POST['priority'] ?? '';
     $status = $_POST['status'] ?? 'To Do';
@@ -17,10 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($title) && !empty($due_date) && !empty($priority)) {
         if (isset($_POST['id']) && $_POST['id'] !== '') {
             // Update task
-            updateTask($pdo, $_POST['id'], $title, $description, $due_date, $priority, $status, $project_id);
+            updateTask($pdo, $_POST['id'], $title, $description, $due_date, $priority, $status, $project_id, $start_date);
         } else {
-            // Create new task
-            createTask($pdo, $title, $description, $due_date, $priority, $status, $project_id, $_SESSION['user_id']);
+            // Use custom start date or default to today
+            $start_date = !empty($start_date) ? $start_date : date('Y-m-d');
+            createTask($pdo, $title, $description, $start_date, $due_date, $priority, $status, $project_id, $_SESSION['user_id']);
         }
     }
 }
@@ -47,7 +49,29 @@ if (isset($_GET['toggle_status'])) {
 }
 
 // Fetch all tasks and projects
-$tasks = getAllTasks($pdo, $_SESSION['user_id']);
+$project_filter = $_GET['project_id'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+
+$tasks_query = "SELECT tasks.*, users.username AS created_by 
+    FROM tasks 
+    LEFT JOIN users ON tasks.user_id = users.id 
+    WHERE tasks.user_id = :user_id";
+$params = [':user_id' => $_SESSION['user_id']];
+
+if ($project_filter !== '') {
+    $tasks_query .= " AND tasks.project_id = :project_id";
+    $params[':project_id'] = $project_filter;
+}
+if ($status_filter !== '') {
+    $tasks_query .= " AND tasks.status = :status";
+    $params[':status'] = $status_filter;
+}
+$tasks_query .= " ORDER BY tasks.due_date ASC";
+
+$stmt = $pdo->prepare($tasks_query);
+$stmt->execute($params);
+$tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $projects = getAllProjects($pdo, $_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
@@ -55,100 +79,161 @@ $projects = getAllProjects($pdo, $_SESSION['user_id']);
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tasks</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Include the script in the head or before the closing body tag -->
-    <script src="/projo/assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-blue-50 to-blue-200 min-h-screen text-gray-800">
     <?php include __DIR__ . '/../components/header.php'; ?>
     <main class="container mx-auto py-8">
-        <h2 class="text-3xl font-bold mb-4">Tasks</h2>
-        <div class="bg-white p-6 rounded shadow mb-6">
-            <button id="toggle-task-form" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Add Task</button>
-            <form method="POST" id="task-form" class="space-y-4 hidden">
-                <input type="hidden" name="id" id="task-id">
-                <div>
-                    <label for="title" class="block font-bold">Title</label>
-                    <input type="text" id="title" name="title" class="w-full border border-gray-300 p-2 rounded" required>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold">Tasks</h2>
+            <button id="toggle-task-form" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">
+                <i class="fas fa-plus mr-2"></i>Add Task
+            </button>
+        </div>
+        <form method="GET" class="mb-6 flex flex-wrap gap-4 items-end">
+            <div>
+                <label for="filter_project" class="block font-semibold mb-1">Filter by Project</label>
+                <select id="filter_project" name="project_id" class="border border-gray-300 p-2 rounded">
+                    <option value="">All Projects</option>
+                    <?php foreach ($projects as $project): ?>
+                        <option value="<?= $project['id'] ?>" <?= (isset($_GET['project_id']) && $_GET['project_id'] == $project['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($project['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label for="filter_status" class="block font-semibold mb-1">Filter by Status</label>
+                <select id="filter_status" name="status" class="border border-gray-300 p-2 rounded">
+                    <option value="">All Statuses</option>
+                    <option value="To Do" <?= (isset($_GET['status']) && $_GET['status'] == 'To Do') ? 'selected' : '' ?>>To Do</option>
+                    <option value="In Progress" <?= (isset($_GET['status']) && $_GET['status'] == 'In Progress') ? 'selected' : '' ?>>In Progress</option>
+                    <option value="Done" <?= (isset($_GET['status']) && $_GET['status'] == 'Done') ? 'selected' : '' ?>>Done</option>
+                </select>
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Apply Filters</button>
+        </form>
+        <form method="POST" id="task-form" class="space-y-4 hidden bg-blue-50 rounded-lg p-6 shadow-inner mb-6">
+            <input type="hidden" name="id" id="task-id">
+            <div class="mb-2">
+                <label class="inline-flex items-center">
+                    <input type="checkbox" id="schedule-checkbox" class="form-checkbox mr-2">
+                    <span class="font-semibold">Schedule Task (set start date)</span>
+                </label>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div id="start-date-row" style="display:none;">
+                    <label for="start_date" class="block font-semibold mb-1">Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400">
                 </div>
                 <div>
-                    <label for="description" class="block font-bold">Description</label>
-                    <textarea id="description" name="description" class="w-full border border-gray-300 p-2 rounded"></textarea>
+                    <label for="title" class="block font-semibold mb-1">Title</label>
+                    <input type="text" id="title" name="title" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400" required>
                 </div>
                 <div>
-                    <label for="due_date" class="block font-bold">Due Date</label>
-                    <input type="date" id="due_date" name="due_date" class="w-full border border-gray-300 p-2 rounded" required>
+                    <label for="description" class="block font-semibold mb-1">Description</label>
+                    <input id="description" name="description" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400">
                 </div>
                 <div>
-                    <label for="priority" class="block font-bold">Priority</label>
-                    <select id="priority" name="priority" class="w-full border border-gray-300 p-2 rounded" required>
+                    <label for="due_date" class="block font-semibold mb-1">Due Date</label>
+                    <input type="date" id="due_date" name="due_date" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="priority" class="block font-semibold mb-1">Priority</label>
+                    <select id="priority" name="priority" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400" required>
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
                         <option value="High">High</option>
                     </select>
                 </div>
                 <div>
-                    <label for="status" class="block font-bold">Status</label>
-                    <select id="status" name="status" class="w-full border border-gray-300 p-2 rounded">
+                    <label for="status" class="block font-semibold mb-1">Status</label>
+                    <select id="status" name="status" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400">
                         <option value="To Do">To Do</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Done">Done</option>
                     </select>
                 </div>
                 <div>
-                    <label for="project_id" class="block font-bold">Project</label>
-                    <select id="project_id" name="project_id" class="w-full border border-gray-300 p-2 rounded">
+                    <label for="project_id" class="block font-semibold mb-1">Project</label>
+                    <select id="project_id" name="project_id" class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-400">
                         <option value="">Unassigned</option>
                         <?php foreach ($projects as $project): ?>
                             <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['title']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Save Task</button>
-            </form>
-        </div>
-        <div class="bg-white p-6 rounded shadow">
-            <table class="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border border-gray-300 px-4 py-2">ID</th>
-                        <th class="border border-gray-300 px-4 py-2">Title</th>
-                        <th class="border border-gray-300 px-4 py-2">Description</th>
-                        <th class="border border-gray-300 px-4 py-2">Due Date</th>
-                        <th class="border border-gray-300 px-4 py-2">Priority</th>
-                        <th class="border border-gray-300 px-4 py-2">Status</th>
-                        <?php if ($is_admin): ?>
-                            <th class="border border-gray-300 px-4 py-2">Created By</th>
-                        <?php endif; ?>
-                        <th class="border border-gray-300 px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($tasks as $task): ?>
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['id']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['description']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['due_date']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['priority']) ?></td>
-                            <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['status']) ?></td>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Save Task</button>
+            </div>
+        </form>
+        <div class="bg-white p-6 rounded-xl shadow">
+            <div class="overflow-x-auto w-full">
+                <table class="table-auto w-full border-collapse border border-gray-200 text-sm md:text-base">
+                    <thead>
+                        <tr class="bg-blue-50">
+                            <th class="border border-gray-200 px-4 py-2">ID</th>
+                            <th class="border border-gray-200 px-4 py-2">Title</th>
+                            <th class="border border-gray-200 px-4 py-2">Description</th>
+                            <th class="border border-gray-200 px-4 py-2">Due Date</th>
+                            <th class="border border-gray-200 px-4 py-2">Priority</th>
+                            <th class="border border-gray-200 px-4 py-2 min-w-[110px]">Status</th>
                             <?php if ($is_admin): ?>
-                                <td class="border border-gray-300 px-4 py-2"><?= htmlspecialchars($task['created_by']) ?></td>
+                                <th class="border border-gray-200 px-4 py-2">Created By</th>
                             <?php endif; ?>
-                            <td class="border border-gray-300 px-4 py-2">
-                                <button class="bg-yellow-500 text-white px-2 py-1 rounded" onclick="editTask(<?= htmlspecialchars(json_encode($task)) ?>)">Edit</button>
-                                <a href="?delete=<?= $task['id'] ?>" class="bg-red-500 text-white px-2 py-1 rounded">Delete</a>
-                            </td>
+                            <th class="border border-gray-200 px-4 py-2">Actions</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tasks as $task): ?>
+                            <tr>
+                                <td class="border border-gray-200 px-4 py-2"><?= htmlspecialchars($task['id']) ?></td>
+                                <td class="border border-gray-200 px-4 py-2"><?= htmlspecialchars($task['title']) ?></td>
+                                <td class="border border-gray-200 px-4 py-2 whitespace-pre-line">
+                                    <?= htmlspecialchars($task['description']) ?>
+                                </td>
+                                <td class="border border-gray-200 px-4 py-2"><?= htmlspecialchars($task['due_date']) ?></td>
+                                <td class="border border-gray-200 px-4 py-2"><?= htmlspecialchars($task['priority']) ?></td>
+                                <td class="border border-gray-200 px-4 py-2 min-w-[110px]">
+                                    <?php
+                                    $status = $task['status'];
+                                    $badgeClass = 'bg-gray-300 text-gray-800';
+                                    if ($status === 'Done') {
+                                        $badgeClass = 'bg-green-500 text-white';
+                                    } elseif ($status === 'In Progress') {
+                                        $badgeClass = 'bg-yellow-400 text-gray-900';
+                                    } elseif ($status === 'To Do') {
+                                        $badgeClass = 'bg-red-500 text-white';
+                                    }
+                                    ?>
+                                    <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold <?= $badgeClass ?>">
+                                        <?= htmlspecialchars($status) ?>
+                                    </span>
+                                </td>
+                                <?php if ($is_admin): ?>
+                                    <td class="border border-gray-200 px-4 py-2"><?= htmlspecialchars($task['created_by']) ?></td>
+                                <?php endif; ?>
+                                <td class="border border-gray-200 px-4 py-2 flex gap-2">
+                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition" onclick="editTask(<?= htmlspecialchars(json_encode($task)) ?>)">Edit</button>
+                                    <a href="?delete=<?= $task['id'] ?>" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
     <script>
@@ -159,6 +244,16 @@ $projects = getAllProjects($pdo, $_SESSION['user_id']);
         toggleTaskFormButton.addEventListener('click', () => {
             taskForm.classList.toggle('hidden');
             toggleTaskFormButton.textContent = taskForm.classList.contains('hidden') ? 'Add Task' : 'Cancel';
+        });
+
+        // Toggle start date field
+        const scheduleCheckbox = document.getElementById('schedule-checkbox');
+        const startDateRow = document.getElementById('start-date-row');
+        scheduleCheckbox.addEventListener('change', function() {
+            startDateRow.style.display = this.checked ? '' : 'none';
+            if (!this.checked) {
+                document.getElementById('start_date').value = '';
+            }
         });
 
         // Populate form for editing a task
@@ -172,32 +267,17 @@ $projects = getAllProjects($pdo, $_SESSION['user_id']);
             document.getElementById('priority').value = task.priority;
             document.getElementById('status').value = task.status;
             document.getElementById('project_id').value = task.project_id;
-        }
 
-        function startTimer(taskId) {
-            fetch('/projo/api/task_timer.php?action=start&task_id=' + taskId)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Timer started!');
-                        location.reload();
-                    } else {
-                        alert('Failed to start timer.');
-                    }
-                });
-        }
-
-        function stopTimer(taskId) {
-            fetch('/projo/api/task_timer.php?action=stop&task_id=' + taskId)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Timer stopped!');
-                        location.reload();
-                    } else {
-                        alert('Failed to stop timer.');
-                    }
-                });
+            // Show/hide start date based on value
+            if (task.start_date) {
+                scheduleCheckbox.checked = true;
+                startDateRow.style.display = '';
+                document.getElementById('start_date').value = task.start_date;
+            } else {
+                scheduleCheckbox.checked = false;
+                startDateRow.style.display = 'none';
+                document.getElementById('start_date').value = '';
+            }
         }
     </script>
 </body>

@@ -186,54 +186,83 @@ footer {
 
 /* General Dark Mode Styles */
 body.dark {
-  background-color: #121212; /* Fully dark background */
-  color: #e0e0e0; /* Light text for better visibility */
+  background-color: #000 !important;
+  color: #fff !important;
 }
 
 /* Header & Navbar in Dark Mode */
-header.dark,
-.navbar.dark {
-  background-color: #1e1e1e; /* Darker header background */
-  color: #e0e0e0; /* Light text */
+body.dark header,
+body.dark .navbar,
+body.dark nav,
+body.dark #mobile-menu {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-bottom: 1px solid #222 !important;
 }
 
 /* Cards in Dark Mode */
 body.dark .bg-white,
-body.dark .card {
-  background-color: #1e1e1e; /* Dark card background */
-  color: #e0e0e0; /* Light text */
-  border: 1px solid #2a2a2a; /* Subtle border for separation */
+body.dark .bg-blue-100,
+body.dark .bg-green-100,
+body.dark .bg-yellow-100,
+body.dark .bg-purple-100,
+body.dark .bg-red-100,
+body.dark .bg-orange-100,
+body.dark .card,
+body.dark .kanban-card,
+body.dark .gantt-card {
+  background-color: #000 !important;
+  color: #fff !important;
+  border: 1px solid #222 !important;
+  box-shadow: none !important;
+}
+
+body.dark .rounded,
+body.dark .rounded-xl,
+body.dark .rounded-3xl,
+body.dark .shadow {
+  background-color: #000 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Ensure Kanban and Gantt columns are also black */
+body.dark .bg-gray-100,
+body.dark .bg-gray-200 {
+  background-color: #000 !important;
+  color: #fff !important;
 }
 
 /* Tables in Dark Mode */
 body.dark table {
-  background-color: #1e1e1e; /* Dark table background */
-  color: #e0e0e0; /* Light text */
-  border-color: #2a2a2a; /* Darker border */
+  background-color: #000 !important;
+  color: #fff !important;
 }
 
 body.dark th {
-  background-color: #2a2a2a; /* Slightly lighter dark for headers */
-  color: #e0e0e0; /* Light text */
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #222 !important;
 }
 
 body.dark td {
-  background-color: #1e1e1e; /* Dark cell background */
-  border-color: #2a2a2a; /* Darker border */
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #222 !important;
 }
 
 /* Forms in Dark Mode */
 body.dark input,
 body.dark textarea,
 body.dark select {
-  background-color: #2a2a2a; /* Dark input background */
-  color: #e0e0e0; /* Light text */
-  border: 1px solid #3a3a3a; /* Darker border */
+  background-color: #111 !important;
+  color: #fff !important;
+  border: 1px solid #222 !important;
 }
 
 body.dark input::placeholder,
 body.dark textarea::placeholder {
-  color: #a0a0a0; /* Lighter placeholder text */
+  color: #aaa !important;
 }
 
 body.dark input:focus,
@@ -244,36 +273,81 @@ body.dark select:focus {
 }
 
 /* Buttons in Dark Mode */
-body.dark button {
-  background-color: #3a3a3a; /* Dark button background */
-  color: #e0e0e0; /* Light text */
-  border: 1px solid #4a4a4a; /* Darker border */
+body.dark button,
+body.dark .bg-gradient-to-r {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #222 !important;
 }
 
 body.dark button:hover {
-  background-color: #4a4a4a; /* Slightly lighter on hover */
+  background: #222 !important;
 }
 
 /* Status Badges in Dark Mode */
+body.dark .status {
+  color: #fff !important;
+}
+
 body.dark .status.pending {
-  background-color: #f59e0b; /* Amber for pending */
-  color: #1e1e1e; /* Dark text */
+  background-color: #f59e0b !important;
 }
 
 body.dark .status.completed {
-  background-color: #10b981; /* Green for completed */
-  color: #1e1e1e; /* Dark text */
+  background-color: #10b981 !important;
 }
 
 body.dark .status.in-progress {
-  background-color: #3b82f6; /* Blue for in-progress */
-  color: #1e1e1e; /* Dark text */
+  background-color: #3b82f6 !important;
 }
 
 /* Footer in Dark Mode */
 body.dark footer {
-  background-color: #1e1e1e; /* Dark footer background */
-  color: #a0a0a0; /* Lighter text */
+  background-color: #000 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Activity log items */
+body.dark .bg-gray-100 {
+  background-color: #000 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Dashboard stat colors in dark mode */
+body.dark .text-green-600,
+body.dark .text-green-500,
+body.dark .text-green-400 {
+  color: #22c55e !important;
+}
+
+body.dark .text-orange-500,
+body.dark .text-orange-400 {
+  color: #f59e42 !important;
+}
+
+body.dark .text-blue-600,
+body.dark .text-blue-500,
+body.dark .text-blue-400 {
+  color: #3b82f6 !important;
+}
+
+body.dark .text-red-500,
+body.dark .text-red-600 {
+  color: #ef4444 !important;
+}
+
+body.dark .text-purple-500,
+body.dark .text-purple-600 {
+  color: #a21caf !important;
+}
+
+/* Ensure container is black in dark mode */
+body.dark .container {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #222 !important;
 }
 
 /* Transition for Smooth Theme Change */
@@ -285,6 +359,8 @@ input,
 textarea,
 select,
 button,
-table {
+table,
+.card,
+footer {
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }

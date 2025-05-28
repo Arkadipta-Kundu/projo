@@ -1,0 +1,32 @@
+# Environment configuration
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Session files
+/sessions/
+
+# Dependency directories
+/vendor/
+/node_modules/
+
+# Build outputs
+/dist/
+/build/
+
+# Backup & temp files
+*.bak
+*.tmp
+*.temp
+/backup/*.sql
+/temp/

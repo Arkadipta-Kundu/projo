@@ -32,12 +32,13 @@ if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
 <head>
     <meta charset="UTF-8">
     <title>Task Timer</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/projo/assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -137,7 +138,7 @@ if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
                 return;
             }
 
-            fetch(`/projo/api/task_timer.php?action=start&task_id=${taskId}`)
+            fetch(`../api/task_timer.php?action=start&task_id=${taskId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -168,7 +169,7 @@ if (isset($_GET['project_id']) && $_GET['project_id'] !== '') {
                 return;
             }
 
-            fetch(`/projo/api/task_timer.php?action=stop&task_id=${taskId}`)
+            fetch(`../api/task_timer.php?action=stop&task_id=${taskId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

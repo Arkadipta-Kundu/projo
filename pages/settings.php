@@ -54,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Re-enable foreign key checks
             $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
-            // Reinsert default admin user
-            $pdo->exec("INSERT INTO users (username, password) VALUES ('admin', '" . password_hash('password123', PASSWORD_DEFAULT) . "');");
+            // This will prompt for a new admin setup via the setup.php page
+            // No default user is inserted, for security reasons
 
             $message = 'All tables have been reset successfully!';
             logActivity($pdo, $_SESSION['user'], 'Reset Database');
@@ -133,8 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch system infoUnreleased
-$appVersion = '1.5.0 (God edition)'; // Update this as needed
-$lastUpdated = '01-05-2025'; // Update this as needed
+$appVersion = '2.1.4'; // Update this as needed
+$lastUpdated = '05-05-2025'; // Update this as needed
 
 // Fetch logs with pagination
 $page = $_GET['page'] ?? 1;
@@ -154,14 +154,15 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-blue-50 to-blue-200 min-h-screen text-gray-800">
     <?php include __DIR__ . '/../components/header.php'; ?>
     <main class="container mx-auto py-8">
         <h2 class="text-3xl font-bold mb-4">Settings</h2>
@@ -170,10 +171,9 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <!-- Account Details Section -->
-        <div class="bg-white p-6 rounded shadow mb-8">
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Account Details</h3>
             <?php
-            // Fetch current user's name and username
             $stmt = $pdo->prepare("SELECT name, username FROM users WHERE id = :id");
             $stmt->execute([':id' => $_SESSION['user_id']]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -182,11 +182,14 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <p><strong>Username:</strong> <?= htmlspecialchars($user['username'] ?? '') ?></p>
         </div>
 
-        <div class="bg-white p-6 rounded shadow mb-8">
+        <!-- Toggle Dark Mode -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Toggle Dark Mode</h3>
             <button id="theme-toggle" class="bg-gray-200 text-gray-800 px-4 py-2 rounded">Dark Mode</button>
         </div>
-        <div class="bg-white p-6 rounded shadow mb-8">
+
+        <!-- Import Data -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Import Data</h3>
             <form method="POST" enctype="multipart/form-data" class="space-y-4">
                 <div>
@@ -209,12 +212,14 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="import_file" class="block font-bold">Upload File</label>
                     <input type="file" id="import_file" name="import_file" class="w-full border border-gray-300 p-2 rounded" required>
                 </div>
-                <button type="submit" name="import_data" class="bg-blue-500 text-white px-4 py-2 rounded">Import Data</button>
+                <button type="submit" name="import_data" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Import Data</button>
             </form>
         </div>
-        <div class="bg-white p-6 rounded shadow mb-8">
-            <h3 class="text-2xl font-bold mb-4">Export Data</h3>
-            <form method="GET" action="/projo/export.php" class="space-y-4">
+
+        <!-- Export Data -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
+            <h3 class="text-xl font-bold mb-4">Export Data</h3>
+            <form method="GET" action="../export.php" class="space-y-4">
                 <div>
                     <label for="type" class="block font-bold">What to Export</label>
                     <select id="type" name="type" class="w-full border border-gray-300 p-2 rounded" required>
@@ -231,20 +236,23 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <option value="json">JSON</option>
                     </select>
                 </div>
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Export</button>
+                <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Export</button>
             </form>
         </div>
-        <!-- filepath: c:\xampp\htdocs\projo\pages\settings.php -->
-        <div class="bg-white p-6 rounded shadow mb-8">
+
+        <!-- Backup Database -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Backup Database</h3>
             <p class="text-gray-600 mb-4">Click the button below to download a backup of the current database as a .sql file.</p>
             <form method="POST" action="../backup.php">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Backup Database</button>
+                <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Backup Database</button>
             </form>
         </div>
-        <div class="bg-white p-6 rounded shadow mb-6">
+
+        <!-- Change Password Section -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Change Password</h3>
-            <button id="toggle-password-form" class="bg-blue-500 text-white px-4 py-2 rounded mb-4">Change Password</button>
+            <button id="toggle-password-form" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded mb-4 font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Change Password</button>
             <form method="POST" id="password-form" class="space-y-4 hidden">
                 <div>
                     <label for="username" class="block font-bold">Username</label>
@@ -258,24 +266,30 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="new_password" class="block font-bold">New Password</label>
                     <input type="password" id="new_password" name="new_password" class="w-full border border-gray-300 p-2 rounded" required>
                 </div>
-                <button type="submit" name="change_password" class="bg-blue-500 text-white px-4 py-2 rounded">Update Password</button>
+                <button type="submit" name="change_password" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded font-semibold shadow hover:scale-105 hover:from-blue-700 hover:to-blue-600 transition-all duration-150">Update Password</button>
             </form>
         </div>
-        <div class="bg-white p-6 rounded shadow mb-6">
+
+        <!-- Logout -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Logout</h3>
             <p class="text-gray-600 mb-4">Click the button below to log out of your account.</p>
-            <form method="POST" action="/projo/logout.php">
-                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
+            <form method="POST" action="../logout.php">
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded font-semibold shadow hover:bg-red-600 transition-all duration-150">Logout</button>
             </form>
         </div>
-        <div class="bg-white p-6 rounded shadow mb-6">
+
+        <!-- Reset Application -->
+        <!-- <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Reset Application</h3>
             <p class="text-gray-600 mb-4">Click the button below to reset all tables and their identity generation. This action cannot be undone.</p>
             <form method="POST" onsubmit="return confirm('Are you sure you want to reset all tables? This action cannot be undone!');">
-                <button type="submit" name="reset_tables" class="bg-red-500 text-white px-4 py-2 rounded">Reset All Tables</button>
+                <button type="submit" name="reset_tables" class="bg-red-500 text-white px-4 py-2 rounded font-semibold shadow hover:bg-red-600 transition-all duration-150">Reset All Tables</button>
             </form>
-        </div>
-        <div class="bg-white p-6 rounded shadow mb-8">
+        </div> -->
+
+        <!-- Activity Logs -->
+        <!-- <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">Activity Logs</h3>
             <?php if (empty($logs)): ?>
                 <p class="text-gray-600">No activity logs available.</p>
@@ -290,8 +304,10 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
-        </div>
-        <div class="bg-white p-6 rounded shadow mb-8">
+        </div> -->
+
+        <!-- System Info -->
+        <div class="bg-white p-6 rounded-xl shadow mb-8">
             <h3 class="text-xl font-bold mb-4">System Info / Version Info</h3>
             <p><strong>App Version:</strong> <?= htmlspecialchars($appVersion) ?></p>
             <p><strong>Last Updated:</strong> <?= htmlspecialchars($lastUpdated) ?></p>
@@ -316,10 +332,10 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             themeToggle.textContent = isDark ? 'Light Mode' : 'Dark Mode';
         });
+
         // Toggle the visibility of the password form
         const togglePasswordFormButton = document.getElementById('toggle-password-form');
         const passwordForm = document.getElementById('password-form');
-
         togglePasswordFormButton.addEventListener('click', () => {
             passwordForm.classList.toggle('hidden');
             togglePasswordFormButton.textContent = passwordForm.classList.contains('hidden') ? 'Change Password' : 'Cancel';

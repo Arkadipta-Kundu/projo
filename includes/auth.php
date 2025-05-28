@@ -5,7 +5,7 @@ session_start();
 try {
     include __DIR__ . '/db.php'; // Include the database connection
 } catch (Exception $e) {
-    header('Location: /projo/catchy_error_page.php');
+    header('Location: ../catchy_error_page.php');
     exit();
 }
 
@@ -22,7 +22,7 @@ if (!isset($_SESSION['user']) && isset($_COOKIE['remember_me'])) {
 }
 
 if (!isset($_SESSION['user'])) {
-    header('Location: /projo/login.php');
+    header('Location: ../login.php');
     exit();
 }
 

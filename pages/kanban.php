@@ -11,10 +11,11 @@ $tasks = getAllTasks($pdo, $_SESSION['user_id']);
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanban</title>
-    <link rel="icon" type="image/x-icon" href="/projo/assets/images/icon.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/icon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/projo/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.3/dragula.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -26,49 +27,50 @@ $tasks = getAllTasks($pdo, $_SESSION['user_id']);
     <?php include __DIR__ . '/../components/header.php'; ?>
     <main class="container mx-auto py-8">
         <h2 class="text-3xl font-bold mb-4">Kanban Board</h2>
-        <div class="grid grid-cols-3 gap-4">
-            <!-- To Do Column -->
-            <div class="bg-gray-200 p-4 rounded shadow">
-                <h3 class="text-xl font-bold mb-2">To Do</h3>
-                <div id="todo" class="kanban-column"> <!-- Correct ID for "To Do" -->
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] === 'To Do'): ?>
-                            <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
-                                <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
-                                <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+        <!-- Responsive Kanban wrapper -->
+        <div class="overflow-x-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-[600px] sm:min-w-0 flex-shrink-0 sm:grid">
+                <!-- To Do Column -->
+                <div class="bg-gray-200 p-4 rounded shadow min-w-[250px]">
+                    <h3 class="text-xl font-bold mb-2">To Do</h3>
+                    <div id="todo" class="kanban-column">
+                        <?php foreach ($tasks as $task): ?>
+                            <?php if ($task['status'] === 'To Do'): ?>
+                                <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
+                                    <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
+                                    <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
-
-            <!-- In Progress Column -->
-            <div class="bg-gray-200 p-4 rounded shadow">
-                <h3 class="text-xl font-bold mb-2">In Progress</h3>
-                <div id="in-progress" class="kanban-column"> <!-- Correct ID for "In Progress" -->
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] === 'In Progress'): ?>
-                            <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
-                                <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
-                                <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <!-- In Progress Column -->
+                <div class="bg-gray-200 p-4 rounded shadow min-w-[250px]">
+                    <h3 class="text-xl font-bold mb-2">In Progress</h3>
+                    <div id="in-progress" class="kanban-column">
+                        <?php foreach ($tasks as $task): ?>
+                            <?php if ($task['status'] === 'In Progress'): ?>
+                                <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
+                                    <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
+                                    <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Done Column -->
-            <div class="bg-gray-200 p-4 rounded shadow">
-                <h3 class="text-xl font-bold mb-2">Done</h3>
-                <div id="done" class="kanban-column"> <!-- Correct ID for "Done" -->
-                    <?php foreach ($tasks as $task): ?>
-                        <?php if ($task['status'] === 'Done'): ?>
-                            <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
-                                <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
-                                <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <!-- Done Column -->
+                <div class="bg-gray-200 p-4 rounded shadow min-w-[250px]">
+                    <h3 class="text-xl font-bold mb-2">Done</h3>
+                    <div id="done" class="kanban-column">
+                        <?php foreach ($tasks as $task): ?>
+                            <?php if ($task['status'] === 'Done'): ?>
+                                <div class="kanban-card bg-white p-2 rounded shadow mb-2 border-l-4 <?= getPriorityColor($task['priority']) ?>" data-id="<?= $task['id'] ?>">
+                                    <h4 class="font-bold"><?= htmlspecialchars($task['title']) ?></h4>
+                                    <p class="text-sm text-gray-600"><?= htmlspecialchars($task['description']) ?></p>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,7 +116,7 @@ $tasks = getAllTasks($pdo, $_SESSION['user_id']);
             }
 
             // Send AJAX request to update task status
-            fetch('/projo/api/update_task_status.php', {
+            fetch('../api/update_task_status.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -9,5 +9,5 @@ if (isset($_COOKIE['remember_me'])) {
 }
 
 session_destroy();
-header('Location: /projo/index.php');
+header('Location: index.php');
 exit();
